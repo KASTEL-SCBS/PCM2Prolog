@@ -310,8 +310,11 @@ class PCM2PrologXSBGenerator extends AbstractProfiledEcore2LogGenerator<PCMNameC
 		val providedInterface = connector.providedRole_AssemblyConnector.providedInterface__OperationProvidedRole
 		val informationFlowStereotypeName = "InformationFlow"
 		val parametersAndDataPairsFeatureName = "parametersAndDataPairs"
+		if (providedInterface == null) {
+			return Collections.emptyList() 
+		}
 		val parametersAndDataPairs = providedInterface.getTaggedValues(informationFlowStereotypeName, parametersAndDataPairsFeatureName, ParametersAndDataPair)
-		val providedSignatures = providedInterface?.signatures__OperationInterface
+		val providedSignatures = providedInterface.signatures__OperationInterface
 		if (providedSignatures != null) {
 			for (providedSignature : providedSignatures) {
 				var signatureParametersAndDataPairs = providedSignature.getTaggedValues(informationFlowStereotypeName, parametersAndDataPairsFeatureName, ParametersAndDataPair)
