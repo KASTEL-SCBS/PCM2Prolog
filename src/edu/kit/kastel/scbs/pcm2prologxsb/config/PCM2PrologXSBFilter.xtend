@@ -65,12 +65,12 @@ class PCM2PrologXSBFilter extends DefaultProfiledMetamodel2LogFilter {
 			// confidentiality.data
 			'DataSet',
 			'DataSetMap',
-//			'DataParameter',
+//			'SpecificationParameter',
 			'DataSetMapEntry',
 //			'ParameterizedDataSetMapEntry',
 			// confidentiality.repository
 			'ParametersAndDataPair',
-//			'AddedFunctionalParameter',
+//			'AddedServiceParameter',
 			// confidentiality.system
 			// nothing
 			// confidentiality.resources
@@ -137,13 +137,13 @@ class PCM2PrologXSBFilter extends DefaultProfiledMetamodel2LogFilter {
 			'dataIdentifier',
 			'dataSetMaps',
 			'parametersAndDataPairs',
-//			'addedFunctionalParameters',
+//			'addedServiceParameters',
 			// no substitutions
 			'locations',
 			'tamperProtections',
 			'locationsAndTamperProtectionsPairs',
 			// confidentiality.data
-//			'definingFunctionalParameter',
+//			'definingServiceParameter',
 			'map',
 //			'parameter',
 			// confidentiality.repository
@@ -162,8 +162,8 @@ class PCM2PrologXSBFilter extends DefaultProfiledMetamodel2LogFilter {
 			'unencryptedData',
 			'signatures'
 //			'substitutions',
-//			'functionalParameters',
-//			'dataParameters'
+//			'serviceParameters',
+//			'specificationParameters'
 		}
 		if (logSkipped && !featureNameWhiteSet.contains(feature.name)) {
 			val pluginId = "edu.kit.kastel.scbs.pcm2prologxsb"
