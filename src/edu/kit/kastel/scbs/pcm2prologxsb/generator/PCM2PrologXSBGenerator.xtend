@@ -117,17 +117,17 @@ class PCM2PrologXSBGenerator extends AbstractProfiledEcore2LogGenerator<PCMNameC
 	}
 	
 	def private dispatch void preProcessContentToBuildUpMaps(Connector connector) {
-		val substitutions = getAssignmentsAtConnector(connector)
-		for (substitution : substitutions) {
-			if (substitution instanceof DataSetMapParameter2KeyAssignment) {
-				val dsmp2ks = substitution as DataSetMapParameter2KeyAssignment 
+		val assignments = getAssignmentsAtConnector(connector)
+		for (assignment : assignments) {
+			if (assignment instanceof DataSetMapParameter2KeyAssignment) {
+				val dsmp2ks = assignment as DataSetMapParameter2KeyAssignment 
 				val replacementValue = dsmp2ks.assignedKey
 				for (replacedParamKey : dsmp2ks.specificationParametersToReplace) {
 					addToSetValuedMap(this.dataParam2KeyMap, replacedParamKey, replacementValue)
 				}
 			}
 		}
-		// FIXME MK support unsubstituted parameters at interfaces that are used for connectors in composite components (not only for connectors in systems)
+		// FIXME MK support unassigned parameters at interfaces that are used for connectors in composite components (not only for connectors in systems)
 	}
 	
 	// TODO MK this is obsolete as soon as the first three maps are replaced with org.apache.commons.collections4.SetValuedMap
@@ -253,41 +253,41 @@ class PCM2PrologXSBGenerator extends AbstractProfiledEcore2LogGenerator<PCMNameC
 	
 	// FIXME MK GENERALIZE THIS SO THAT IT ALSO WORKS FOR DELEGATION CONNECTORS
 	def dispatch String generateDeeplyCorrectly(AssemblyConnector ac) {
-		// at the beginning the variable unsubstitutedSpecificationParameters contains all data parameters (substituted or not)
-		val unsubstitutedSpecificationParameters = getSpecificationParametersForProvidedInterfaceOfConnector(ac)
-		val dataSetMapEntriesWithUnsubstitutedParameters = getDataSetMapEntriesWithUnsubstitutedParametersForProvidedInterfaceOfConnector(ac)
-		var substitutionContent = ""
-		if (!unsubstitutedSpecificationParameters.isEmpty) {
-			val substitutions = getAssignmentsAtConnector(ac)
-			// if a parameter is substituted, the effect of the relations that we generate for the substitution
+		// at the beginning the variable unassignedSpecificationParameters contains all data parameters (assigned or not)
+		val unassignedSpecificationParameters = getSpecificationParametersForProvidedInterfaceOfConnector(ac)
+		val dataSetMapEntriesWithUnassignedParameters = getDataSetMapEntriesWithUnassignedParametersForProvidedInterfaceOfConnector(ac)
+		var assignmentContent = ""
+		if (!unassignedSpecificationParameters.isEmpty) {
+			val assignments = getAssignmentsAtConnector(ac)
+			// if a parameter is assigned, the effect of the relations that we generate for the assignment
 			// is the same as if we would have directly generated the relations for the assigned data sets or
 			// data set map entries during the generation of the other relations for the provided interface
-			substitutionContent += generateInformationFlowForAssignments(substitutions, ac, unsubstitutedSpecificationParameters, dataSetMapEntriesWithUnsubstitutedParameters)
-			// now the variable unsubstitutedSpecificationParameters really contains only those data parameters that were not substituted
-			// and dataSetMapEntriesWithUnsubstitutedParameters really contains only such entries
-			val unsubstitutedSpecificationParameterIterator = unsubstitutedSpecificationParameters.iterator
-			while (unsubstitutedSpecificationParameterIterator.hasNext) {
-				val unsubstitutedSpecificationParameter = unsubstitutedSpecificationParameterIterator.next
-				// if a parameter is not substituted, the effect of the relations that we generate for the missing
-				// substitution is the same as if we would have directly generated the relations for _all_ existing data sets and _all_ existing data set map entries during the generation for the interface
-				substitutionContent += generateInformationFlowForMissingAssignment(ac, unsubstitutedSpecificationParameter)			
-				unsubstitutedSpecificationParameterIterator.remove
+			assignmentContent += generateInformationFlowForAssignments(assignments, ac, unassignedSpecificationParameters, dataSetMapEntriesWithUnassignedParameters)
+			// now the variable unassignedSpecificationParameters really contains only those data parameters that were not assigned
+			// and dataSetMapEntriesWithUnassignedParameters really contains only such entries
+			val unassignedSpecificationParameterIterator = unassignedSpecificationParameters.iterator
+			while (unassignedSpecificationParameterIterator.hasNext) {
+				val unassignedSpecificationParameter = unassignedSpecificationParameterIterator.next
+				// if a parameter is not assigned, the effect of the relations that we generate for the missing
+				// assignment is the same as if we would have directly generated the relations for _all_ existing data sets and _all_ existing data set map entries during the generation for the interface
+				assignmentContent += generateInformationFlowForMissingAssignment(ac, unassignedSpecificationParameter)			
+				unassignedSpecificationParameterIterator.remove
 			}
 			// FIXME MK remove this code duplication of this two while loops by concatenating the iterators using Guava Iterators.concat
-			val dataSetMapEntriesWithUnsubstitutedParametersIterator = dataSetMapEntriesWithUnsubstitutedParameters.iterator
-			while (dataSetMapEntriesWithUnsubstitutedParametersIterator.hasNext) {
-				val dataSetMapEntryWithUnsubstitutedParameter = dataSetMapEntriesWithUnsubstitutedParametersIterator.next
-				// if a parameter is not substituted, the effect of the relations that we generate for the missing
-				// substitution is the same as if we would have directly generated the relations for _all_ existing data sets and _all_ existing data set map entries during the generation for the interface
-				substitutionContent += generateInformationFlowForMissingAssignment(ac, dataSetMapEntryWithUnsubstitutedParameter)			
-				dataSetMapEntriesWithUnsubstitutedParametersIterator.remove
+			val dataSetMapEntriesWithUnassignedParametersIterator = dataSetMapEntriesWithUnassignedParameters.iterator
+			while (dataSetMapEntriesWithUnassignedParametersIterator.hasNext) {
+				val dataSetMapEntryWithUnassignedParameter = dataSetMapEntriesWithUnassignedParametersIterator.next
+				// if a parameter is not assigned, the effect of the relations that we generate for the missing
+				// assignment is the same as if we would have directly generated the relations for _all_ existing data sets and _all_ existing data set map entries during the generation for the interface
+				assignmentContent += generateInformationFlowForMissingAssignment(ac, dataSetMapEntryWithUnassignedParameter)			
+				dataSetMapEntriesWithUnassignedParametersIterator.remove
 			}
 
-			if (!unsubstitutedSpecificationParameters.isEmpty) {
-				throw new RuntimeException("The unsubstituted data parameters '" + unsubstitutedSpecificationParameters + "' were not processed!")
+			if (!unassignedSpecificationParameters.isEmpty) {
+				throw new RuntimeException("The unassigned data parameters '" + unassignedSpecificationParameters + "' were not processed!")
 			}
 		}
-		return super.generateDeeply(ac) + substitutionContent
+		return super.generateDeeply(ac) + assignmentContent
 	}
 	
 	private def Set<SpecificationParameter> getSpecificationParametersForProvidedInterfaceOfConnector(AssemblyConnector connector) {
@@ -324,36 +324,36 @@ class PCM2PrologXSBGenerator extends AbstractProfiledEcore2LogGenerator<PCMNameC
 		return parametersAndDataPairs
 	}
 	
-	private def List<ParameterizedDataSetMapEntry> getDataSetMapEntriesWithUnsubstitutedParametersForProvidedInterfaceOfConnector(AssemblyConnector connector) {
+	private def List<ParameterizedDataSetMapEntry> getDataSetMapEntriesWithUnassignedParametersForProvidedInterfaceOfConnector(AssemblyConnector connector) {
 		val parametersAndDataPairs = getParametersAndDataPairsForProvidedInterfaceOfConnector(connector)		
-		val dataSetMapEntriesWithUnsubstitutedParameters = newArrayList()
+		val dataSetMapEntriesWithUnassignedParameters = newArrayList()
 		for (parametersAndDataPair : parametersAndDataPairs) {
 			val parameterizedDataSetMapEntries = parametersAndDataPair.dataTargets.filter(typeof(ParameterizedDataSetMapEntry))
-			dataSetMapEntriesWithUnsubstitutedParameters.addAll(parameterizedDataSetMapEntries)
+			dataSetMapEntriesWithUnassignedParameters.addAll(parameterizedDataSetMapEntries)
 		}
-		return dataSetMapEntriesWithUnsubstitutedParameters
+		return dataSetMapEntriesWithUnassignedParameters
 	}
 	
 	private def getAssignmentsAtConnector(Connector connector) {
-		val informationFlowAssignmentStereotypeName = "InformationFlowAssignment"
-		val substiutionsFeatureName = "substitutions"
+		val informationFlowAssignmentStereotypeName = "InformationFlowParameterAssignment"
+		val substiutionsFeatureName = "assignments"
 		return connector.getTaggedValues(informationFlowAssignmentStereotypeName, substiutionsFeatureName, AbstractSpecificationParameterAssignment)
 	}
 	
-	/** CAUTION SIDE-EFFECTS: if unsubstitutedSpecificationParameters or dataSetMapEntriesWithUnsubstitutedParameters are provided, they are changed!
+	/** CAUTION SIDE-EFFECTS: if unassignedSpecificationParameters or dataSetMapEntriesWithUnassignedParameters are provided, they are changed!
 	 * 
-	 *@param unsubstitutedSpecificationParameters optional
+	 *@param unassignedSpecificationParameters optional
 	 */
-	private def String generateInformationFlowForAssignments(Iterable<AbstractSpecificationParameterAssignment> substitutions, AssemblyConnector connector, Set<SpecificationParameter> unsubstitutedSpecificationParameters, List<ParameterizedDataSetMapEntry> dataSetMapEntriesWithUnsubstitutedParameters) {
+	private def String generateInformationFlowForAssignments(Iterable<AbstractSpecificationParameterAssignment> assignments, AssemblyConnector connector, Set<SpecificationParameter> unassignedSpecificationParameters, List<ParameterizedDataSetMapEntry> dataSetMapEntriesWithUnassignedParameters) {
 		var contents = ""
-		for (substitution : substitutions) {
-			val substitutedParameters = substitution.specificationParametersToReplace
+		for (assignment : assignments) {
+			val assignedParameters = assignment.specificationParametersToReplace
 			var instanceCommentOpening = ""
 			var instanceCommentClosing = ""
 			var newLine = ""
 			if (userConfig.generateComments) {
-				instanceCommentOpening = generateInstanceCommentOpening(substitution)
-				instanceCommentClosing = generateInstanceCommentClosing(substitution)
+				instanceCommentOpening = generateInstanceCommentOpening(assignment)
+				instanceCommentClosing = generateInstanceCommentClosing(assignment)
 				newLine = generateNewLine()
 			}
 			val roleSpecificRelationName = "connectorSpecificParametersAndDataPairs"
@@ -365,19 +365,19 @@ class PCM2PrologXSBGenerator extends AbstractProfiledEcore2LogGenerator<PCMNameC
 				val currentDataTargets = new BasicEList(parametersAndDataPair.dataTargets)
 				for (currentDataTarget : currentDataTargets) {
 					var String replacement = null
-					if (substitutedParameters.contains(currentDataTarget)
-								&& substitution instanceof SpecificationParameter2DataSetAssignment) {
+					if (assignedParameters.contains(currentDataTarget)
+								&& assignment instanceof SpecificationParameter2DataSetAssignment) {
 						// replacement for data parameter
-						val specificationParameterAssignment = substitution as SpecificationParameter2DataSetAssignment
+						val specificationParameterAssignment = assignment as SpecificationParameter2DataSetAssignment
 						replacement = specificationParameterAssignment.assignedDataSet.name
-						unsubstitutedSpecificationParameters?.remove(currentDataTarget)
+						unassignedSpecificationParameters?.remove(currentDataTarget)
 					} else if (currentDataTarget instanceof ParameterizedDataSetMapEntry 
-								&& substitution instanceof DataSetMapParameter2KeyAssignment) {
+								&& assignment instanceof DataSetMapParameter2KeyAssignment) {
 						val parameterizedDataTarget = currentDataTarget as ParameterizedDataSetMapEntry
-						val dataSetMapParameterAssignment = substitution as DataSetMapParameter2KeyAssignment
+						val dataSetMapParameterAssignment = assignment as DataSetMapParameter2KeyAssignment
 						val keyParameter = parameterizedDataTarget.parameter
-						if (substitutedParameters.contains(keyParameter)) {
-							// replacement for data set map entries for which the key parameter is substituted
+						if (assignedParameters.contains(keyParameter)) {
+							// replacement for data set map entries for which the key parameter is assigned
 							val parameterizedMap = parameterizedDataTarget.map
 							val assignedKey = dataSetMapParameterAssignment.assignedKey
 							var dataSetMapEntry = getFromMapValuedMap(this.dataSetMapAndKey2Entry, parameterizedMap, assignedKey)
@@ -397,8 +397,8 @@ class PCM2PrologXSBGenerator extends AbstractProfiledEcore2LogGenerator<PCMNameC
 								}	
 							}
 							replacement = "[" + generateID(dataSetMapEntry) + "]"
-							unsubstitutedSpecificationParameters?.remove(keyParameter)
-							dataSetMapEntriesWithUnsubstitutedParameters?.remove(parameterizedDataTarget)
+							unassignedSpecificationParameters?.remove(keyParameter)
+							dataSetMapEntriesWithUnassignedParameters?.remove(parameterizedDataTarget)
 						}
 					}
 					if (replacement != null) {
@@ -413,7 +413,7 @@ class PCM2PrologXSBGenerator extends AbstractProfiledEcore2LogGenerator<PCMNameC
 						val sourcesValue = generateSingleFeatureValue(parametersAndDataPair, sourcesFeature)
 						val sourcesContent = generateRelation(sourcesFeatureName, idOfNewPair, sourcesValue)
 						val targetsFeatureName = "dataTargets"
-						// do the actual substitution by using the replacement instead of the data target value
+						// do the actual assignment by using the replacement instead of the data target value
 						val targetsValue = replacement
 						val targetsContent = generateRelation(targetsFeatureName, idOfNewPair, targetsValue)
 						contents += newLine + instanceCommentOpening + instanceContent + newLine + sourcesContent + newLine + targetsContent + instanceCommentClosing + newLine
@@ -429,17 +429,17 @@ class PCM2PrologXSBGenerator extends AbstractProfiledEcore2LogGenerator<PCMNameC
 		return contents
 	}
 	
-	private def dispatch String generateInformationFlowForMissingAssignment(AssemblyConnector connector, ParameterizedDataSetMapEntry unsubstitutedDataSetMapEntry) {
-			// prepare fake substitutions for all unsubstitutedSpecificationParameters and pairs: 
+	private def dispatch String generateInformationFlowForMissingAssignment(AssemblyConnector connector, ParameterizedDataSetMapEntry unassignedDataSetMapEntry) {
+			// prepare fake assignments for all unassignedSpecificationParameters and pairs: 
 			// if datatarget is ParameterizedDataSetMapEntry then substitute with all indices plus "others"
-			val dataSetMap = unsubstitutedDataSetMapEntry.map
-			val unsubstitutedSpecificationParameter = unsubstitutedDataSetMapEntry.getParameter
+			val dataSetMap = unassignedDataSetMapEntry.map
+			val unassignedSpecificationParameter = unassignedDataSetMapEntry.getParameter
 			val usedKeys = getUsedKeysForDataSetMap(dataSetMap)
 			val fakeAssignments = new ArrayList<AbstractSpecificationParameterAssignment>(usedKeys.size + 1)
 			for (usedKey : usedKeys) {
-				fakeAssignments.add(createFakeDataSetMapParameter2KeyAssignment(unsubstitutedSpecificationParameter, usedKey))
+				fakeAssignments.add(createFakeDataSetMapParameter2KeyAssignment(unassignedSpecificationParameter, usedKey))
 			}
-			fakeAssignments.add(createFakeDataSetMapParameter2KeyAssignment(unsubstitutedSpecificationParameter, "others"))
+			fakeAssignments.add(createFakeDataSetMapParameter2KeyAssignment(unassignedSpecificationParameter, "others"))
 			return generateInformationFlowForAssignments(fakeAssignments, connector, null, null)
 	}
 	
@@ -450,13 +450,13 @@ class PCM2PrologXSBGenerator extends AbstractProfiledEcore2LogGenerator<PCMNameC
 		return fakeAssignment
 	}
 	
-	private def dispatch String generateInformationFlowForMissingAssignment(AssemblyConnector connector, SpecificationParameter unsubstitutedSpecificationParameter) {
-		// prepare fake substitutions for all unsubstitutedSpecificationParameters and pairs: 
+	private def dispatch String generateInformationFlowForMissingAssignment(AssemblyConnector connector, SpecificationParameter unassignedSpecificationParameter) {
+		// prepare fake assignments for all unassignedSpecificationParameters and pairs: 
 		// if datatarget is normal SpecificationParameter then substitute with all DataSets
 		val usedDataSets = getUsedDataSets()
 		val fakeAssignments = new ArrayList<AbstractSpecificationParameterAssignment>(usedDataSets.size)
 		for (usedDataSet : usedDataSets) {
-			fakeAssignments.add(createFakeSpecificationParameter2DataSetAssignment(unsubstitutedSpecificationParameter, usedDataSet))
+			fakeAssignments.add(createFakeSpecificationParameter2DataSetAssignment(unassignedSpecificationParameter, usedDataSet))
 		}
 		return generateInformationFlowForAssignments(fakeAssignments, connector, null, null)
 	}
