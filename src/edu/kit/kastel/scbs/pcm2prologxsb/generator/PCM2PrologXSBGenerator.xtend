@@ -171,9 +171,6 @@ class PCM2PrologXSBGenerator extends AbstractProfiledEcore2LogGenerator<PCMNameC
 		return sizeOfId
 	}
 	
-	
-	
-	// FIXME 
 	/** CAUTION SIDE-EFFECTS: if unassignedSpecificationParameters or dataSetMapEntriesWithUnassignedParameters are provided, they are changed!
 	 * 
 	 *@param unassignedSpecificationParameters optional
@@ -184,26 +181,22 @@ class PCM2PrologXSBGenerator extends AbstractProfiledEcore2LogGenerator<PCMNameC
 			
 		var contents = ""
 		val aSDSMEs = specificationParameterRemover.assignmentSpecificDataSetMapEntries
-		//			val assignedParameters = assignment.specificationParametersToReplace
 		var instanceCommentOpening = ""
 		var instanceCommentClosing = ""
 		var newLine = ""
 		if (userConfig.generateComments) {
-//				instanceCommentOpening = generateInstanceCommentOpening(assignment)
-//				instanceCommentClosing = generateInstanceCommentClosing(assignment)
+//			instanceCommentOpening = generateInstanceCommentOpening(assignment)
+//			instanceCommentClosing = generateInstanceCommentClosing(assignment)
 			newLine = generateNewLine()
 		}
 		for (aSDSME : aSDSMEs) {
-
-//			val parametersAndDataPairs = getParametersAndDataPairsForProvidedInterfaceOfConnector(connector)
-
 			val confidentialitySpecification = aSDSME.key
 			val dataSetMapEntry = aSDSME.value
 			contents += generateInstancePredicate(dataSetMapEntry)
 			val relationName = "dataIdentifier"
 			contents += generateRelation(relationName, generateID(confidentialitySpecification), generateID(dataSetMapEntry))
 		}
-		// FIXME store dataIdentifiers in a MAP FOR EACH CONNECTOR in order to avoid re-generating them several times
+		// we map dataIdentifiers for each connector in order to avoid re-generating them several times
 		val aSPADPMap = specificationParameterRemover.assignmentSpecificParametersAndDataPairs
 		val connectorID = generateID(connector)
 		val aSPADPs = aSPADPMap.get(connector)

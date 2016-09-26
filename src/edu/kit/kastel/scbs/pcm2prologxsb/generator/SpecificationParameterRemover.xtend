@@ -144,11 +144,10 @@ class SpecificationParameterRemover {
 	}
 	
 	// FIXME MK GENERALIZE THIS SO THAT IT ALSO WORKS FOR DELEGATION CONNECTORS
-	def dispatch void prepareInformationFlowSpecificationsForParameterAssignments(AssemblyConnector ac) {
+	def public void prepareInformationFlowSpecificationsForParameterAssignments(AssemblyConnector ac) {
 		// at the beginning the variable unassignedSpecificationParameters contains all data parameters (assigned or not)
 		val unassignedSpecificationParameters = getSpecificationParametersForProvidedInterfaceOfConnector(ac)
 		val dataSetMapEntriesWithUnassignedParameters = getDataSetMapEntriesWithUnassignedParametersForProvidedInterfaceOfConnector(ac)
-//		var assignmentContent = ""
 		if (!unassignedSpecificationParameters.isEmpty) {
 			val assignments = getAssignmentsAtConnector(ac)
 			// if a parameter is assigned, the effect of the relations that we generate for the assignment
@@ -174,12 +173,10 @@ class SpecificationParameterRemover {
 				prepareInformationFlowForMissingAssignment(ac, dataSetMapEntryWithUnassignedParameter)			
 				dataSetMapEntriesWithUnassignedParametersIterator.remove
 			}
-
 			if (!unassignedSpecificationParameters.isEmpty) {
 				throw new RuntimeException("The unassigned data parameters '" + unassignedSpecificationParameters + "' were not processed!")
 			}
 		}
-//		return assignmentContent
 	}
 	
 	private def Set<SpecificationParameter> getSpecificationParametersForProvidedInterfaceOfConnector(AssemblyConnector connector) {
@@ -237,32 +234,18 @@ class SpecificationParameterRemover {
 	 *@param unassignedSpecificationParameters optional
 	 */
 	private def void prepareInformationFlowForAssignments(Iterable<AbstractSpecificationParameterAssignment> assignments, AssemblyConnector connector, Set<SpecificationParameter> unassignedSpecificationParameters, List<ParameterizedDataSetMapEntry> dataSetMapEntriesWithUnassignedParameters) {
-//		var contents = ""
 		for (assignment : assignments) {
 			val assignedParameters = assignment.specificationParametersToReplace
-//			var instanceCommentOpening = ""
-//			var instanceCommentClosing = ""
-//			var newLine = ""
-//			if (userConfig.generateComments) {
-//				instanceCommentOpening = generateInstanceCommentOpening(assignment)
-//				instanceCommentClosing = generateInstanceCommentClosing(assignment)
-//				newLine = generateNewLine()
-//			}
-//			val roleSpecificRelationName = "connectorSpecificParametersAndDataPairs"
-//			val connectorID = generateID(connector)
-//			val parametersAndDataPairName = "parametersAndDataPair"
 			val parametersAndDataPairs = getParametersAndDataPairsForProvidedInterfaceOfConnector(connector)
 			val idsOfNewPairs = new ArrayList<String>()
 			for (parametersAndDataPair : parametersAndDataPairs) {
 				val currentDataTargets = new BasicEList(parametersAndDataPair.dataTargets)
 				for (currentDataTarget : currentDataTargets) {
-//					var String replacement = null
 					var UnparameterizedDataIdentifying replacement = null
 					if (assignedParameters.contains(currentDataTarget)
 								&& assignment instanceof SpecificationParameter2DataSetAssignment) {
 						// replacement for data parameter
 						val specificationParameterAssignment = assignment as SpecificationParameter2DataSetAssignment
-//						replacement = specificationParameterAssignment.assignedDataSet.name
 						replacement = specificationParameterAssignment.assignedDataSet
 						unassignedSpecificationParameters?.remove(currentDataTarget)
 					} else if (currentDataTarget instanceof ParameterizedDataSetMapEntry 
@@ -283,47 +266,24 @@ class SpecificationParameterRemover {
 								if (container instanceof ConfidentialitySpecification) {
 									val confidentialitySpecification = container as ConfidentialitySpecification
 									confidentialitySpecification.dataIdentifier.add(dataSetMapEntry)
-//									contents += generateInstancePredicate(dataSetMapEntry)
-//									val relationName = "dataIdentifier"
-//									contents += generateRelation(relationName, generateID(confidentialitySpecification), generateID(dataSetMapEntry))
 									this.assignmentSpecificDataSetMapEntries.add(new Pair(confidentialitySpecification,dataSetMapEntry))
 								} else {
 									throw new IllegalStateException("The parameterized map ' " + parameterizedMap + "' has to be contained in a confidentiality specification not in '" + container + "'!")
 								}	
 							}
-//							replacement = "[" + generateID(dataSetMapEntry) + "]"
 							replacement = dataSetMapEntry
 							unassignedSpecificationParameters?.remove(keyParameter)
 							dataSetMapEntriesWithUnassignedParameters?.remove(parameterizedDataTarget)
 						}
 					}
 					if (replacement != null) {
-//						// we will now generate special parametersAndDataPairs relations
-//						// which are only concerning the provided role of the connector
-//						val idOfNewPair = generateIDValue(parametersAndDataPair, generateID(parametersAndDataPair) + "_substSpec_" + currentDataTarget + " <- " + replacement)
-//						idsOfNewPairs.add(idOfNewPair)
-//						// FIXME MK use generatePredicate or generateRelation
-//						val instanceContent = parametersAndDataPairName + logConfig.generatePredicateOpening + idOfNewPair + logConfig.generatePredicateClosing
-//						val sourcesFeatureName = "parameterSources"
-//						val sourcesFeature = parametersAndDataPair.eClass.getEStructuralFeature(sourcesFeatureName)
-//						val sourcesValue = generateSingleFeatureValue(parametersAndDataPair, sourcesFeature)
-//						val sourcesContent = generateRelation(sourcesFeatureName, idOfNewPair, sourcesValue)
-//						val targetsFeatureName = "dataTargets"
-//						// do the actual assignment by using the replacement instead of the data target value
-//						val targetsValue = replacement
-//						val targetsContent = generateRelation(targetsFeatureName, idOfNewPair, targetsValue)
-//						contents += newLine + instanceCommentOpening + instanceContent + newLine + sourcesContent + newLine + targetsContent + instanceCommentClosing + newLine
+						// we will now add special parametersAndDataPairs relations
+						// which are only concerning the provided role of the connector
 						addToSetValuedMap(this.assignmentSpecificParametersAndDataPairs, connector, new Triplet(parametersAndDataPair, currentDataTarget, replacement))
 					}
 				}
 			}
-			if (idsOfNewPairs.size > 0) {
-//				val roleValue = idsOfNewPairs.toString
-//				val roleContent = generateRelation(roleSpecificRelationName, connectorID, roleValue)
-//				contents += newLine + instanceCommentOpening + roleContent + instanceCommentClosing + newLine
-			}
 		}
-//		return contents
 	}
 	
 	private def dispatch void prepareInformationFlowForMissingAssignment(AssemblyConnector connector, ParameterizedDataSetMapEntry unassignedDataSetMapEntry) {
