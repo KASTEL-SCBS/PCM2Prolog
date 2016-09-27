@@ -23,14 +23,19 @@ import java.util.Map
 import java.util.Set
 import org.eclipse.emf.common.util.BasicEList
 import org.eclipse.emf.ecore.EObject
+import org.eclipse.internal.xtend.util.Triplet
 import org.eclipse.xtend.lib.annotations.Accessors
 import org.palladiosimulator.pcm.core.composition.AssemblyConnector
+import org.palladiosimulator.pcm.core.composition.AssemblyContext
 import org.palladiosimulator.pcm.core.composition.Connector
-import tools.vitruv.framework.util.datatypes.Quadruple
 
 import static extension edu.kit.ipd.sdq.commons.util.org.eclipse.emf.ecore.EObjectUtil.*
 import static extension edu.kit.ipd.sdq.commons.util.org.palladiosimulator.mdsdprofiles.api.StereotypeAPIUtil.*
-import org.eclipse.internal.xtend.util.Triplet
+import static extension edu.kit.ipd.sdq.commons.util.org.palladiosimulator.pcm.core.composition.AssemblyContextUtil.*
+import static extension edu.kit.ipd.sdq.commons.util.org.palladiosimulator.pcm.core.composition.ConnectorUtil.*
+import edu.kit.kastel.scbs.confidentiality.system.SpecificationParameterEquation
+import org.palladiosimulator.pcm.repository.OperationInterface
+import org.palladiosimulator.mdsdprofiles.api.StereotypeAPI
 
 class SpecificationParameterRemover {
 	// FIXME MK replace all three maps with org.apache.commons.collections4.SetValuedMap
@@ -45,6 +50,9 @@ class SpecificationParameterRemover {
 	private val Map<Connector, Set<Triplet<ParametersAndDataPair, DataIdentifying, UnparameterizedDataIdentifying>>> assignmentSpecificParametersAndDataPairs = newHashMap()
 	
 	private var Collection<DataSet> dataSets = new HashSet()
+	
+	private val Map<Connector, List<AbstractSpecificationParameterAssignment>> equationReplacingAssignments = newHashMap()
+		
 	
 	def public void preProcessFirstLevelContentsToBuildUpMaps(List<EObject> firstLevelContents) {
 		for (firstLevelContent : firstLevelContents) {
@@ -71,6 +79,18 @@ class SpecificationParameterRemover {
 			}
 		}
 		// FIXME MK support unassigned parameters at interfaces that are used for connectors in composite components (not only for connectors in systems)
+	}
+	
+	private def List<SpecificationParameterEquation>  getEquationsAtAssemblyContext(AssemblyContext assemblyContext) {
+		val informationFlowEquationsStereotypeName = "InformationFlowParameterEquation"
+		val equationsFeatureName = "equations"
+		return assemblyContext.getTaggedValues(informationFlowEquationsStereotypeName, equationsFeatureName, SpecificationParameterEquation)
+	}
+	
+	private def List<AbstractSpecificationParameterAssignment> addAssignmentsAtConnector(Connector connector, List<AbstractSpecificationParameterAssignment> equations) {
+		val informationFlowAssignmentStereotypeName = "InformationFlowParameterAssignment"
+		val assignmentsFeatureName = "assignments"
+		return connector.addTaggedValues(informationFlowAssignmentStereotypeName, assignmentsFeatureName, equations, AbstractSpecificationParameterAssignment)
 	}
 	
 	// TODO MK this is obsolete as soon as the first three maps are replaced with org.apache.commons.collections4.SetValuedMap
@@ -225,8 +245,8 @@ class SpecificationParameterRemover {
 	
 	private def getAssignmentsAtConnector(Connector connector) {
 		val informationFlowAssignmentStereotypeName = "InformationFlowParameterAssignment"
-		val substiutionsFeatureName = "assignments"
-		return connector.getTaggedValues(informationFlowAssignmentStereotypeName, substiutionsFeatureName, AbstractSpecificationParameterAssignment)
+		val assignmentsFeatureName = "assignments"
+		return connector.getTaggedValues(informationFlowAssignmentStereotypeName, assignmentsFeatureName, AbstractSpecificationParameterAssignment)
 	}
 	
 	/** CAUTION SIDE-EFFECTS: if unassignedSpecificationParameters or dataSetMapEntriesWithUnassignedParameters are provided, they are changed!
@@ -323,5 +343,97 @@ class SpecificationParameterRemover {
 		fakeAssignment.getSpecificationParametersToReplace().add(specificationParameterToReplace)
 		fakeAssignment.assignedDataSet = assignedDataSet
 		return fakeAssignment
+	}
+	
+	public def void preprocessSpecificationParameterEquationsAtAssemblyContext(AssemblyContext assemblyContext) {
+		var boolean assignmentAdded = false
+		do {
+			val equationsAtAC = getEquationsAtAssemblyContext(assemblyContext)
+			for (equationAtAC : equationsAtAC) {
+				var providedNotRequired = true
+				val assignmentsForEquatedProvidedParameter = getAssignmentsForEquatedParameter(assemblyContext, equationAtAC, providedNotRequired)
+				providedNotRequired = false
+				val assignmentsForEquatedRequiredParameter = getAssignmentsForEquatedParameter(assemblyContext, equationAtAC, providedNotRequired)
+				// FIXME check in map for each connector whether it is replacing by obtaining a map from connector to assignments in getAssignmentsForEquatedParameter
+				val assignmentsForProvidedEmptyOrReplacing = assignmentsForEquatedProvidedParameter?.empty || this.equationReplacingAssignments.get(assemblyContext)?.containsAll(assignmentsForEquatedProvidedParameter)
+				val assignmentsForRequiredEmptyOrReplacing = assignmentsForEquatedRequiredParameter?.empty || this.equationReplacingAssignments.get(assemblyContext)?.containsAll(assignmentsForEquatedRequiredParameter)
+				// we have to distinguish assignments that were added by the user and 
+				// assignments that were added by us: four cases are possible
+				if (assignmentsForProvidedEmptyOrReplacing) {
+					if (assignmentsForRequiredEmptyOrReplacing) {
+						// 1. no user assignments neither on provided nor on required side:
+						// copy in both directions
+						providedNotRequired = true
+						copyAssignments(assemblyContext, assignmentsForEquatedRequiredParameter, providedNotRequired)
+						providedNotRequired = false
+						copyAssignments(assemblyContext, assignmentsForEquatedProvidedParameter, providedNotRequired)
+					} else {
+						// 2. user assignments only at required side: 
+						// copy assignments collected at all connectors on required side to every connector on provided side
+						providedNotRequired = true
+						copyAssignments(assemblyContext, assignmentsForEquatedRequiredParameter, providedNotRequired)
+					}
+				} else {
+					if (assignmentsForRequiredEmptyOrReplacing) {
+						// 3. user assignments only at provided side: 
+						// symmetric to case 2.
+						providedNotRequired = false
+						copyAssignments(assemblyContext, assignmentsForEquatedProvidedParameter, providedNotRequired)
+					} else {
+						// 4. user assignments on both sides: not allowed! in the future we could demand that they have to be the same for every connector at every side or that one has to be stricter than the other 
+						throw new RuntimeException("Parameter equations are only allowed if the connectors that connect interfaces with the equated specification parameters only have assignments either on the provided or on the required side of the assembly context to which the equation is applied! This is not true for the assembly context '" + assemblyContext + "' and the equation '" + equationAtAC + "'!")
+					}
+				}
+			}
+		} while (assignmentAdded)
+	}
+	
+	private def List<AbstractSpecificationParameterAssignment> getAssignmentsForEquatedParameter(AssemblyContext assemblyContext, SpecificationParameterEquation equation, boolean providedNotRequired) {	
+		val namesOfInterfacesForWhichParameterIsEquated = if (providedNotRequired) equation.providedInterfaceNames else equation.requiredInterfaceNames
+		val equatedParameter = if (providedNotRequired) equation.providedSpecificationParameter else equation.requiredSpecificationParameter
+		val interfacesOfEquatedParameter = getInterfacesOfEquatedParameter(assemblyContext, namesOfInterfacesForWhichParameterIsEquated, providedNotRequired)
+		val connectors = assemblyContext.getAssemblyOrDelegationConnectors(providedNotRequired)
+		val assignmentsForEquatedParameterAtAllConnectors = new ArrayList()
+		for (connector : connectors) {
+			val connectedInterface = connector.getOperationInterface(providedNotRequired)
+			val interfaceOfEquatedParameter = interfacesOfEquatedParameter?.contains(connectedInterface)
+			if (interfaceOfEquatedParameter) {
+				val assignmentsAtConnector = getAssignmentsAtConnector(connector)
+				for (assignmentAtConnector : assignmentsAtConnector) {
+					val hasAssignmentForEquatedProvidedParameter = switch assignmentAtConnector {
+						DataSetMapParameter2KeyAssignment : assignmentAtConnector?.specificationParametersToReplace?.contains(equatedParameter)
+						// FIXME support SpecificationParameter2DataSetAssignment
+					}
+					if (hasAssignmentForEquatedProvidedParameter) {
+						assignmentsForEquatedParameterAtAllConnectors.add(assignmentAtConnector)
+					}
+				}
+			}
+		}
+		return assignmentsForEquatedParameterAtAllConnectors
+	}
+	
+	private def List<OperationInterface> getInterfacesOfEquatedParameter(AssemblyContext assemblyContext, List<String> namesOfInterfacesForWhichParameterIsEquated, boolean providedNotRequired) {
+		val interfaces = assemblyContext.getOperationInterfaces(providedNotRequired)
+		if (namesOfInterfacesForWhichParameterIsEquated?.size == 1 && namesOfInterfacesForWhichParameterIsEquated.get(0) == "*") {
+			return interfaces.toList
+		} else {
+			return interfaces?.filter[namesOfInterfacesForWhichParameterIsEquated?.contains(it?.entityName)].toList
+		}
+	}
+	
+	private def void copyAssignments(AssemblyContext assemblyContext, List<AbstractSpecificationParameterAssignment> assignmentsToCopy, boolean providedNotRequired) {
+		val connectorsForAddingAssignments = assemblyContext.getAssemblyOrDelegationConnectors(providedNotRequired)
+		for (connectorForAddingAssignments : connectorsForAddingAssignments) {
+			// FIXME MK check whether assignment is already there and return assignmentAdded if not
+			// do this when adding the tagged values
+			addAssignmentsAtConnector(connectorForAddingAssignments, assignmentsToCopy) 
+			var replacingAssignments = this.equationReplacingAssignments.get(connectorForAddingAssignments)
+			if (replacingAssignments == null) {
+				replacingAssignments = new ArrayList()
+				this.equationReplacingAssignments.put(connectorForAddingAssignments, replacingAssignments)
+			}
+			replacingAssignments.addAll(assignmentsToCopy)
+		}
 	}
 }

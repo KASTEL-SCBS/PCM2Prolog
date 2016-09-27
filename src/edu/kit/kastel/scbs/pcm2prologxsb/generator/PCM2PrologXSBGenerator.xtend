@@ -27,6 +27,7 @@ import org.palladiosimulator.pcm.core.composition.AssemblyConnector
 import org.palladiosimulator.pcm.repository.OperationInterface
 import org.palladiosimulator.pcm.repository.Parameter
 import org.palladiosimulator.pcm.core.composition.Connector
+import org.palladiosimulator.pcm.core.composition.AssemblyContext
 
 class PCM2PrologXSBGenerator extends AbstractProfiledEcore2LogGenerator<PCMNameConfiguration> {
 	private val SpecificationParameterRemover specificationParameterRemover = new SpecificationParameterRemover()
@@ -44,6 +45,22 @@ class PCM2PrologXSBGenerator extends AbstractProfiledEcore2LogGenerator<PCMNameC
 	}
 	
 	override preprocessInputFiles(List<IFile> inputFiles) {
+		return sortInputFiles(inputFiles)
+	}
+	
+	override preprocessInputResourceInPlace(Resource inputResource) {
+		inputResource.contents.forEach[preprocessContent()]
+	}
+	
+	private def dispatch void preprocessContent(EObject eObject) {
+		// nothing to do in general
+	}
+	
+	private def dispatch void preprocessContent(AssemblyContext ac) {
+//		this.specificationParameterRemover.preprocessSpecificationParameterEquationsAtAssemblyContext(ac)
+	}
+	
+	private def List<IFile> sortInputFiles(List<IFile> inputFiles) {
 		val preprocessedInputFiles = new ArrayList(inputFiles.size)
 		preprocessedInputFiles.addAll(inputFiles)	
 		Collections.sort(preprocessedInputFiles, new Comparator<IFile>() {
