@@ -49,7 +49,7 @@ class PCM2PrologXSBGenerator extends AbstractProfiledEcore2LogGenerator<PCMNameC
 	}
 	
 	override preprocessInputResourceInPlace(Resource inputResource) {
-		inputResource.contents.forEach[preprocessContent()]
+		inputResource.allContents.forEach[preprocessContent(it)]
 	}
 	
 	private def dispatch void preprocessContent(EObject eObject) {
@@ -57,7 +57,7 @@ class PCM2PrologXSBGenerator extends AbstractProfiledEcore2LogGenerator<PCMNameC
 	}
 	
 	private def dispatch void preprocessContent(AssemblyContext ac) {
-//		this.specificationParameterRemover.preprocessSpecificationParameterEquationsAtAssemblyContext(ac)
+		this.specificationParameterRemover.preprocessSpecificationParameterEquationsAtAssemblyContext(ac)
 	}
 	
 	private def List<IFile> sortInputFiles(List<IFile> inputFiles) {
