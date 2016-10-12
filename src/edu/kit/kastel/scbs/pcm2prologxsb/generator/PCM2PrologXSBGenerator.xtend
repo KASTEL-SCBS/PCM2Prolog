@@ -86,9 +86,17 @@ class PCM2PrologXSBGenerator extends AbstractProfiledEcore2LogGenerator<PCMNameC
 	}
 	
 	def dispatch String generateSingleFeatureValue(ParametersAndDataPair p, EAttribute attribute, String referencedString) {
+		if (nameConfig.isReturnParameter(referencedString)) return nameConfig.returnAtom
+		if (nameConfig.isCallParameter(referencedString))   return nameConfig.callAtom
+		if (nameConfig.isWildCard(referencedString))        return nameConfig.wildCardAtom
+
 		if (nameConfig.isParameterSourcesAttribute(attribute) && nameConfig.isSizeOfParameter(referencedString)) {
 			val parameterName = nameConfig.getParameterNameFromSizeOf(referencedString)
-			return getSizeOfId(parameterName)
+			if (nameConfig.isWildCard(parameterName)) {
+				return "sizeOf(" + nameConfig.wildCardAtom + ")"
+			} else {
+				return "sizeOf(" + getParameterId(parameterName) + ")"
+			}
 		}
 		super.generateSingleFeatureValue(p, attribute, referencedString)
 	}
@@ -188,6 +196,14 @@ class PCM2PrologXSBGenerator extends AbstractProfiledEcore2LogGenerator<PCMNameC
 		return sizeOfId
 	}
 	
+	private def String getParameterId(String parameterName) {
+		var parameterId = parameterName
+		if (userConfig.simplifyIDs) {
+			parameterId = nameConfig.getSimpleIDValue(parameterName)?.toString
+		}
+		return parameterId
+	}
+	
 	/** CAUTION SIDE-EFFECTS: if unassignedSpecificationParameters or dataSetMapEntriesWithUnassignedParameters are provided, they are changed!
 	 * 
 	 *@param unassignedSpecificationParameters optional
@@ -236,8 +252,9 @@ class PCM2PrologXSBGenerator extends AbstractProfiledEcore2LogGenerator<PCMNameC
 					val instanceContent = parametersAndDataPairName + logConfig.generatePredicateOpening + idOfNewPair + logConfig.generatePredicateClosing
 					val sourcesFeatureName = "parameterSources"
 					val sourcesFeature = parametersAndDataPair.eClass.getEStructuralFeature(sourcesFeatureName)
-					val sourcesValue = generateSingleFeatureValue(parametersAndDataPair, sourcesFeature)
-					val sourcesContent = generateRelation(sourcesFeatureName, idOfNewPair, sourcesValue)
+					//val sourcesValue = generateSingleFeatureValue(parametersAndDataPair, sourcesFeature)
+					val sourcesValue = generateManyFeatureValues(parametersAndDataPair,sourcesFeature)
+					val sourcesContent = generateRelation(sourcesFeatureName, idOfNewPair, concatAndFilterFeatureValue(sourcesValue))
 					val targetsFeatureName = "dataTargets"
 					// do the actual assignment by using the replacement instead of the data target value
 					val targetsValue = replacement

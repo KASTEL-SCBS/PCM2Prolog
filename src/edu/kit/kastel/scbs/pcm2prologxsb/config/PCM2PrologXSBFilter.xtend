@@ -62,6 +62,9 @@ class PCM2PrologXSBFilter extends DefaultProfiledMetamodel2LogFilter {
 			'AllocationContext',
 			// confidentiality
 			'ConfidentialitySpecification',
+			'CollectionDataType',
+			'PrimitiveDataType',
+			'CompositeDataType',
 			// confidentiality.data
 			'DataSet',
 			'DataSetMap',

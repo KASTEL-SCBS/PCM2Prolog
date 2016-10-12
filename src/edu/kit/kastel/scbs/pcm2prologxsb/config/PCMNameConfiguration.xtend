@@ -33,7 +33,7 @@ class PCMNameConfiguration extends DefaultMetamodel2LogNameConfiguration {
 		
 	override replaceAttributeValueWithIDAttribute(EObject e, EAttribute attribute, Object attributeValue) {
 		if (isParameterSourcesAttribute(attribute) && e instanceof ParametersAndDataPair) {
-			return false // !isReturnParameter(attributeValue)
+			return true // !isReturnParameter(attributeValue)
 		}
 		return super.replaceAttributeValueWithIDAttribute(e, attribute, attributeValue)
 	}
@@ -79,7 +79,8 @@ class PCMNameConfiguration extends DefaultMetamodel2LogNameConfiguration {
 		val signatureIDAttribute = getIDAttribute(signature)
 		val signatureID = signature.eGet(signatureIDAttribute)
 		val parameterID = signatureID + "-" + p.parameterName
-		return parameterID
+		//return parameterID
+		return p.parameterName
 	}
 	
 	// TODO MK change toString handling for Collection and Composite Data Types if necessary
@@ -90,6 +91,20 @@ class PCMNameConfiguration extends DefaultMetamodel2LogNameConfiguration {
 	
 	def boolean isReturnParameter(Object attributeValue) {
 		return attributeValue.equals("\\return")
+	}
+	
+	public val returnAtom = "return"
+	
+	public val callAtom = "call"
+	
+	public val wildCardAtom = "*"
+	
+	
+	def boolean isCallParameter(Object attributeValue) {
+		return attributeValue.equals("\\call")
+	}
+	def boolean isWildCard(Object attributeValue) {
+		return attributeValue.equals("*")
 	}
 	
 	def dispatch boolean isSizeOfParameter(Object attributeValue) {
