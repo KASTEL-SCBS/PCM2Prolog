@@ -73,7 +73,7 @@ class PCM2PrologXSBFilter extends DefaultProfiledMetamodel2LogFilter {
 //			'ParameterizedDataSetMapEntry',
 			// confidentiality.repository
 			'ParametersAndDataPair',
-//			'AddedServiceParameter',
+			'AddedServiceParameter',
 			// confidentiality.system
 			// nothing
 			// confidentiality.resources
@@ -140,7 +140,7 @@ class PCM2PrologXSBFilter extends DefaultProfiledMetamodel2LogFilter {
 			'dataIdentifier',
 			'dataSetMaps',
 			'parametersAndDataPairs',
-//			'addedServiceParameters',
+			'addedServiceParameters',
 			// no substitutions
 			'locations',
 			'tamperProtections',
@@ -163,9 +163,9 @@ class PCM2PrologXSBFilter extends DefaultProfiledMetamodel2LogFilter {
 			'sharing',
 			'connectionType',
 			'unencryptedData',
-			'signatures'
+			'signatures',
 //			'substitutions',
-//			'serviceParameters',
+			'serviceParameters'
 //			'specificationParameters'
 		}
 		if (logSkipped && !featureNameWhiteSet.contains(feature.name)) {
