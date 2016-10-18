@@ -246,7 +246,7 @@ class PCM2PrologXSBGenerator extends AbstractProfiledEcore2LogGenerator<PCMNameC
 				if (replacement != null) {
 					// we will now generate special parametersAndDataPairs relations
 					// which are only concerning the provided role of the connector
-					val idOfNewPair = generateIDValue(parametersAndDataPair, generateID(parametersAndDataPair) + "_substSpec_" + currentDataTarget + " <- " + replacement)
+					val idOfNewPair = generateIDValue(parametersAndDataPair, generateID(parametersAndDataPair) + "_" + generateID(connector) + "_substSpec_" + currentDataTarget + " <- " + replacement)
 					idsOfNewPairs.add(idOfNewPair)
 					// FIXME MK use generatePredicate or generateRelation
 					val instanceContent = parametersAndDataPairName + logConfig.generatePredicateOpening + idOfNewPair + logConfig.generatePredicateClosing
@@ -260,6 +260,7 @@ class PCM2PrologXSBGenerator extends AbstractProfiledEcore2LogGenerator<PCMNameC
 					val targetsValue = replacement
 					val targetsContent = generateRelation(targetsFeatureName, idOfNewPair, targetsValue)
 					contents += newLine + instanceCommentOpening + instanceContent + newLine + sourcesContent + newLine + targetsContent + instanceCommentClosing + newLine
+					contents += newLine + generateRelation("originalParametersAndDataPair", idOfNewPair, generateID(parametersAndDataPair)) + newLine
 				}
 			}
 			if (idsOfNewPairs.size > 0) {
