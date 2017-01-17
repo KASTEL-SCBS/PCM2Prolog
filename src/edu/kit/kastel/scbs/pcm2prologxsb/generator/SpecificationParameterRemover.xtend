@@ -152,10 +152,12 @@ class SpecificationParameterRemover {
 		val possibleKeys = getFromSetValuedMap(this.dataSetMap2Keys, dataSetMap)
 		// add indirectly used keys
 		val usedParameters = this.dataSetMap2ParamMap.get(dataSetMap)
-		for (usedParameter : usedParameters) {
-			val usedKeys = this.dataParam2KeyMap.get(usedParameter)
-			if (usedKeys != null) {
-				possibleKeys.addAll(usedKeys)
+		if (usedParameters != null) {
+			for (usedParameter : usedParameters) {
+				val usedKeys = this.dataParam2KeyMap.get(usedParameter)
+				if (usedKeys != null) {
+					possibleKeys.addAll(usedKeys)
+				}
 			}
 		}
 		return possibleKeys
@@ -186,7 +188,7 @@ class SpecificationParameterRemover {
 				prepareInformationFlowForMissingAssignment(ac, unassignedSpecificationParameter)			
 				unassignedSpecificationParameterIterator.remove
 			}
-			// FIXME MK remove this code duplication of this two while loops by concatenating the iterators using Guava Iterators.concat
+			// TODO MK remove this code duplication of this two while loops by concatenating the iterators using Guava Iterators.concat
 			val dataSetMapEntriesWithUnassignedParametersIterator = dataSetMapEntriesWithUnassignedParameters.iterator
 			while (dataSetMapEntriesWithUnassignedParametersIterator.hasNext) {
 				val dataSetMapEntryWithUnassignedParameter = dataSetMapEntriesWithUnassignedParametersIterator.next
