@@ -23,7 +23,7 @@ Require-Bundle: com.google.guava,
  edu.kit.kastel.scbs.confidentialitymm,
  org.palladiosimulator.mdsdprofiles.api,
  org.modelversioning.emfprofile,
- edu.kit.ipd.sdq.commons.util.org.palladiosimulator.mdsdprofiles.api,
+ edu.kit.ipd.sdq.commons.util.org.palladiosimulator.mdsdprofiles,
  edu.kit.ipd.sdq.commons.util.org.palladiosimulator.pcm,
  edu.kit.ipd.sdq.commons.util.java
 Import-Package: org.apache.log4j;version="1.2.15"
