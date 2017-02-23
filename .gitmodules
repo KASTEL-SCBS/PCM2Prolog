@@ -1,0 +1,3 @@
+[submodule "bundles/ecore2log"]
+	path = bundles/ecore2log
+	url = https://github.com/kit-sdq/Ecore2Log
