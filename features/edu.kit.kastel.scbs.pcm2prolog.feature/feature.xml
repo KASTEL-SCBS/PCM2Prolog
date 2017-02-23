@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="edu.kit.kastel.scbs.pcm2prolog.feature"
+      label="PCM2Prolog"
+      version="1.0.0.qualifier">
+
+   <description url="http://www.example.com/description">
+      [Enter Feature Description here.]
+   </description>
+
+   <copyright url="http://www.example.com/copyright">
+      [Enter Copyright Description here.]
+   </copyright>
+
+   <license url="http://www.example.com/license">
+      [Enter License Description here.]
+   </license>
+
+   <requires>
+      <import plugin="com.google.guava"/>
+      <import plugin="org.eclipse.xtext.xbase.lib"/>
+      <import plugin="org.eclipse.xtend.lib"/>
+      <import plugin="org.eclipse.xtend.lib.macro"/>
+      <import plugin="org.eclipse.xtext.generator"/>
+      <import plugin="org.eclipse.core.resources"/>
+      <import plugin="org.eclipse.core.runtime"/>
+      <import plugin="org.eclipse.core.commands"/>
+      <import plugin="org.eclipse.jface"/>
+      <import plugin="org.eclipse.ui.workbench"/>
+      <import plugin="com.google.inject"/>
+      <import plugin="tools.vitruv.framework.util"/>
+      <import plugin="org.eclipse.xtext.builder"/>
+      <import plugin="org.eclipse.xtext"/>
+      <import plugin="edu.kit.ipd.sdq.commons.util.java"/>
+      <import plugin="org.eclipse.equinox.registry"/>
+      <import plugin="org.palladiosimulator.mdsdprofiles.api"/>
+      <import plugin="org.modelversioning.emfprofile"/>
+      <import plugin="org.eclipse.emf.mwe2.launch"/>
+      <import plugin="org.palladiosimulator.pcm"/>
+      <import plugin="org.eclipse.ui"/>
+      <import plugin="edu.kit.ipd.sdq.commons.util.emf"/>
+      <import plugin="edu.kit.ipd.sdq.commons.util.mdsdprofiles"/>
+      <import plugin="org.apache.log4j"/>
+      <import feature="edu.kit.kastel.scbs.confidentiality.feature" version="1.0.0.qualifier"/>
+   </requires>
+
+   <plugin
+         id="edu.kit.ipd.sdq.commons.ecore2txt"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="edu.kit.ipd.sdq.mdsd.ecore2log"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="edu.kit.kastel.scbs.pcm2prologxsb"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+</feature>
