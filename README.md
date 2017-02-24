@@ -3,7 +3,7 @@ Generate Prolog code for Palladio software architecture models
 
 Generate Prolog code for analysing the confidentiality of data flows in architecture models that were created using the [Palladio Component Model (PCM)](http://palladio-simulator.com/).
 
-See also [PCM2Java4Key](https://github.com/KASTEL-SCBS/PCM2Java4Key) for generating Java code from such architecture models using a subset of the confidentiality specification for architectural analysis.
+See also [PCM2Java4Key](https://github.com/KASTEL-SCBS/PCM2Java4Key) for generating Java code to be verified using KeY from such architecture models using a subset of the confidentiality specification for architectural analysis.
 
 ## Development
 Currently, the only way to install PCM2Prolog is to compile its Eclipse plug-ins in the same way as if you would change or extend the implementation (an Eclipse-update site will follow). The set up involves three steps in which you prepare an Eclipse IDE, import the plug-in code, and run a new Eclipse that has the plug-ins installed.
