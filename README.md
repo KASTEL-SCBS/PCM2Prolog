@@ -7,6 +7,7 @@ See also [PCM2Java4Key](https://github.com/KASTEL-SCBS/PCM2Java4Key) for generat
 
 ## Development
 ### Prepare Development Eclipse
+If you already have set up an Eclipse for [PCM2Java4Key](https://github.com/KASTEL-SCBS/PCM2Java4Key), then you can directly reuse and skip the following preparation, but we recommend to create a new empty workspace for PCM2Prolog.
 * Download and run a clean [**Neon2** Release of the **Eclipse** IDE for Java and **DSL Developers*](https://www.eclipse.org/downloads/packages/eclipse-ide-java-and-dsl-developers/neon2). Do not use another Eclipse Package, i.e. also not the one for Java developers.
 * Install Eclipse **OCL 6.0.1** using the Eclipse Marketplace
   * Help - Eclipse Marketplace ... - Search for "OCL"
@@ -15,7 +16,7 @@ See also [PCM2Java4Key](https://github.com/KASTEL-SCBS/PCM2Java4Key) for generat
   * Select at least **all "Palladio Bench Core Features"** and the **"MDSD Profiles"** feature of the "Palladio Supporting Features" category 
 
 ### Clone Repository and Import Projects
-* Temporary workaround: Clone the [Vitruv repository](https://github.com/vitruv-tools/Vitruv) and import only the ["tools.vitruv.framework.util" project](https://github.com/vitruv-tools/Vitruv/tree/master/bundles/framework/tools.vitruv.framework.util) into your workspace
+* Temporary workaround: Clone the [Vitruv repository](https://github.com/vitruv-tools/Vitruv) and import only the ["tools.vitruv.framework.util" project](https://github.com/vitruv-tools/Vitruv/tree/master/bundles/framework/tools.vitruv.framework.util) into your empty workspace
 * Clone the [PCM2Prolog repository](https://github.com/KASTEL-SCBS/PCM2Prolog) **and its submodules** and import all Eclipse plug-in projects (aka bundles) in it into your workspace
   * both can be done at once in Eclipse
     * right-click in the Package Explorer - Import - Git - Projects from Git - Clone URI
