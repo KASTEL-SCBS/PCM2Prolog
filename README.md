@@ -6,6 +6,7 @@ Generate Prolog code for analysing the confidentiality of data flows in architec
 See also [PCM2Java4Key](https://github.com/KASTEL-SCBS/PCM2Java4Key) for generating Java code from such architecture models using a subset of the confidentiality specification for architectural analysis.
 
 ## Development
+Currently, the only way to install PCM2Java4KeY is to compile its Eclipse plug-ins in the same way as if you would change or extend the implementation (an Eclipse-update site will follow). The set up involves three steps in which you prepare an Eclipse IDE, import the plug-in code, and run a new Eclipse that has the plug-ins installed.
 ### Prepare Development Eclipse
 If you already have set up an Eclipse for [PCM2Java4Key](https://github.com/KASTEL-SCBS/PCM2Java4Key), then you can directly reuse and skip the following preparation, but we recommend to create a new empty workspace for PCM2Prolog.
 * Download and run a clean [**Neon2** Release of the **Eclipse** IDE for Java and **DSL Developers*](https://www.eclipse.org/downloads/packages/eclipse-ide-java-and-dsl-developers/neon2). Do not use another Eclipse Package, i.e. also not the one for Java developers.
@@ -33,6 +34,7 @@ If you already have set up an Eclipse for [PCM2Java4Key](https://github.com/KAST
   * e.g. clone and import an example from the [Examples Repository](https://github.com/KASTEL-SCBS/Examples4SCBS)
   * e.g. right-click - New - Other - Palladio Modeling - New Palladio Project
 
+## Usage
 ### Create Architecture Model, Confidentiality Specification, and Adversary Model in Eclipse
 * To model the component repository, system assembly, resource environment, and allocation you can use the wizard and graphical or tree-based editors of Palladio
   * e.g. using "New - Palladio Modeling - PCM ... Diagram"
