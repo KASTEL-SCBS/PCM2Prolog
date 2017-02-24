@@ -1,7 +1,7 @@
 package edu.kit.kastel.scbs.pcm2prologxsb.handler
 
 import org.eclipse.core.resources.IFile
-import edu.kit.ipd.sdq.commons.ecore2txt.util.Ecore2TxtUtil
+import edu.kit.ipd.sdq.mdsd.ecore2txt.util.Ecore2TxtUtil
 import edu.kit.ipd.sdq.mdsd.ecore2log.config.UserConfiguration
 import edu.kit.ipd.sdq.mdsd.ecore2log.handler.AbstractEcore2LogHandler
 import edu.kit.kastel.scbs.pcm2prologxsb.generator.PCM2PrologXSBGenerator
