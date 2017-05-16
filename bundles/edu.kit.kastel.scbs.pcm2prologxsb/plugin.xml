@@ -34,6 +34,11 @@
                name="concatOutputToSingleFile"
                optional="true">
          </commandParameter>
+         <commandParameter
+               id="edu.kit.kastel.scbs.pcm2prologxsb.generateDescriptions"
+               name="generateDescriptions"
+               optional="true">
+         </commandParameter>
       </command>
    </extension>
    <extension
@@ -50,7 +55,7 @@
                label="KASTEL Architecture Analysis">
             <command
                   commandId="edu.kit.kastel.scbs.pcm2prologxsb.commands.createprologxsb"
-                  label="Create Prolog XSB Code (comments,ungroupded,simpleIDs,multiFiles)"
+                  label="Create Prolog XSB Code (comments,ungrouped,simpleIDs,multiFiles,desc)"
                   style="push"
                   tooltip="Create Prolog XSB Code for Architectural Confidentiality Analysis">
                <parameter
@@ -69,32 +74,40 @@
                      name="edu.kit.kastel.scbs.pcm2prologxsb.concatOutputToSingleFileParameter"
                      value="false">
                </parameter>
-            </command>
-            <command
-                  commandId="edu.kit.kastel.scbs.pcm2prologxsb.commands.createprologxsb"
-                  label="Create Prolog XSB Code (no comments,groupded,simpleIDs,singleFile)"
-                  style="push"
-                  tooltip="Create Prolog XSB Code for Architectural Confidentiality Analysis">
                <parameter
-                     name="edu.kit.kastel.scbs.pcm2prologxsb.generateCommentsParameter"
-                     value="false">
-               </parameter>
-               <parameter
-                     name="edu.kit.kastel.scbs.pcm2prologxsb.groupFactsParameter"
-                     value="true">
-               </parameter>
-               <parameter
-                     name="edu.kit.kastel.scbs.pcm2prologxsb.simplifyIDsParameter"
-                     value="true">
-               </parameter>
-               <parameter
-                     name="edu.kit.kastel.scbs.pcm2prologxsb.concatOutputToSingleFileParameter"
+                     name="edu.kit.kastel.scbs.pcm2prologxsb.generateDescriptions"
                      value="true">
                </parameter>
             </command>
             <command
                   commandId="edu.kit.kastel.scbs.pcm2prologxsb.commands.createprologxsb"
-                  label="Create Prolog XSB Code (no comments,groupded,fullIDs,singleFile)"
+                  label="Create Prolog XSB Code (no comments,grouped,simpleIDs,singleFile,nodesc)"
+                  style="push"
+                  tooltip="Create Prolog XSB Code for Architectural Confidentiality Analysis">
+               <parameter
+                     name="edu.kit.kastel.scbs.pcm2prologxsb.generateCommentsParameter"
+                     value="false">
+               </parameter>
+               <parameter
+                     name="edu.kit.kastel.scbs.pcm2prologxsb.groupFactsParameter"
+                     value="true">
+               </parameter>
+               <parameter
+                     name="edu.kit.kastel.scbs.pcm2prologxsb.simplifyIDsParameter"
+                     value="true">
+               </parameter>
+               <parameter
+                     name="edu.kit.kastel.scbs.pcm2prologxsb.concatOutputToSingleFileParameter"
+                     value="true">
+               </parameter>
+               <parameter
+                     name="edu.kit.kastel.scbs.pcm2prologxsb.generateDescriptions"
+                     value="false">
+               </parameter>
+            </command>
+            <command
+                  commandId="edu.kit.kastel.scbs.pcm2prologxsb.commands.createprologxsb"
+                  label="Create Prolog XSB Code (no comments,grouped,fullIDs,singleFile,nodesc)"
                   style="push"
                   tooltip="Create Prolog XSB Code for Architectural Confidentiality Analysis">
                <parameter
@@ -112,6 +125,10 @@
                <parameter
                      name="edu.kit.kastel.scbs.pcm2prologxsb.concatOutputToSingleFileParameter"
                      value="true">
+               </parameter>
+               <parameter
+                     name="edu.kit.kastel.scbs.pcm2prologxsb.generateDescriptions"
+                     value="false">
                </parameter>
             </command>            
             <visibleWhen
