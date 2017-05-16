@@ -13,31 +13,32 @@ import edu.kit.kastel.scbs.confidentiality.repository.ParametersAndDataPair
 import edu.kit.kastel.scbs.confidentiality.system.AbstractSpecificationParameterAssignment
 import edu.kit.kastel.scbs.confidentiality.system.DataSetMapParameter2KeyAssignment
 import edu.kit.kastel.scbs.confidentiality.system.SpecificationParameter2DataSetAssignment
+import edu.kit.kastel.scbs.confidentiality.system.SpecificationParameterEquation
 import edu.kit.kastel.scbs.confidentiality.system.SystemFactory
 import java.util.ArrayList
 import java.util.Collection
 import java.util.Collections
+import java.util.HashMap
 import java.util.HashSet
 import java.util.List
 import java.util.Map
 import java.util.Set
 import org.eclipse.emf.common.util.BasicEList
+import org.eclipse.emf.common.util.EList
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.internal.xtend.util.Triplet
 import org.eclipse.xtend.lib.annotations.Accessors
+import org.palladiosimulator.mdsdprofiles.api.StereotypeAPI
 import org.palladiosimulator.pcm.core.composition.AssemblyConnector
 import org.palladiosimulator.pcm.core.composition.AssemblyContext
 import org.palladiosimulator.pcm.core.composition.Connector
+import org.palladiosimulator.pcm.repository.OperationInterface
 
+import static extension edu.kit.ipd.sdq.commons.util.java.lang.MapUtil.*
 import static extension edu.kit.ipd.sdq.commons.util.org.eclipse.emf.ecore.EObjectUtil.*
 import static extension edu.kit.ipd.sdq.commons.util.org.palladiosimulator.mdsdprofiles.api.StereotypeAPIUtil.*
 import static extension edu.kit.ipd.sdq.commons.util.org.palladiosimulator.pcm.core.composition.AssemblyContextUtil.*
 import static extension edu.kit.ipd.sdq.commons.util.org.palladiosimulator.pcm.core.composition.ConnectorUtil.*
-import static extension edu.kit.ipd.sdq.commons.util.java.lang.MapUtil.*
-import edu.kit.kastel.scbs.confidentiality.system.SpecificationParameterEquation
-import org.palladiosimulator.pcm.repository.OperationInterface
-import org.palladiosimulator.mdsdprofiles.api.StereotypeAPI
-import java.util.HashMap
 
 class SpecificationParameterRemover {
 	// FIXME MK replace all three maps with org.apache.commons.collections4.SetValuedMap
@@ -180,25 +181,16 @@ class SpecificationParameterRemover {
 			prepareInformationFlowForAssignments(assignments, ac, unassignedSpecificationParameters, dataSetMapEntriesWithUnassignedParameters)
 			// now the variable unassignedSpecificationParameters really contains only those data parameters that were not assigned
 			// and dataSetMapEntriesWithUnassignedParameters really contains only such entries
-			val unassignedSpecificationParameterIterator = unassignedSpecificationParameters.iterator
-			while (unassignedSpecificationParameterIterator.hasNext) {
-				val unassignedSpecificationParameter = unassignedSpecificationParameterIterator.next
+			for (unassignedSpecificationParameter : unassignedSpecificationParameters) {
 				// if a parameter is not assigned, the effect of the relations that we generate for the missing
 				// assignment is the same as if we would have directly generated the relations for _all_ existing data sets and _all_ existing data set map entries during the generation for the interface
 				prepareInformationFlowForMissingAssignment(ac, unassignedSpecificationParameter)			
-				unassignedSpecificationParameterIterator.remove
 			}
-			// TODO MK remove this code duplication of this two while loops by concatenating the iterators using Guava Iterators.concat
-			val dataSetMapEntriesWithUnassignedParametersIterator = dataSetMapEntriesWithUnassignedParameters.iterator
-			while (dataSetMapEntriesWithUnassignedParametersIterator.hasNext) {
-				val dataSetMapEntryWithUnassignedParameter = dataSetMapEntriesWithUnassignedParametersIterator.next
+			// TODO MK remove this code duplication of this two loops by concatenating the iterators using Guava Iterators.concat
+			for (dataSetMapEntryWithUnassignedParameter : dataSetMapEntriesWithUnassignedParameters) {
 				// if a parameter is not assigned, the effect of the relations that we generate for the missing
 				// assignment is the same as if we would have directly generated the relations for _all_ existing data sets and _all_ existing data set map entries during the generation for the interface
 				prepareInformationFlowForMissingAssignment(ac, dataSetMapEntryWithUnassignedParameter)			
-				dataSetMapEntriesWithUnassignedParametersIterator.remove
-			}
-			if (!unassignedSpecificationParameters.isEmpty) {
-				throw new RuntimeException("The unassigned data parameters '" + unassignedSpecificationParameters + "' were not processed!")
 			}
 		}
 	}
@@ -257,57 +249,64 @@ class SpecificationParameterRemover {
 	 * 
 	 *@param unassignedSpecificationParameters optional
 	 */
-	private def void prepareInformationFlowForAssignments(Iterable<AbstractSpecificationParameterAssignment> assignments, AssemblyConnector connector, Set<SpecificationParameter> unassignedSpecificationParameters, List<ParameterizedDataSetMapEntry> dataSetMapEntriesWithUnassignedParameters) {
+	private def UnparameterizedDataIdentifying prepareInformationFlowForAssignments(Iterable<AbstractSpecificationParameterAssignment> assignments, AssemblyConnector connector, Set<SpecificationParameter> unassignedSpecificationParameters, List<ParameterizedDataSetMapEntry> dataSetMapEntriesWithUnassignedParameters) {
 		for (assignment : assignments) {
 			val assignedParameters = assignment.specificationParametersToReplace
 			val parametersAndDataPairs = getParametersAndDataPairsForProvidedInterfaceOfConnector(connector)
-			val idsOfNewPairs = new ArrayList<String>()
 			for (parametersAndDataPair : parametersAndDataPairs) {
 				val currentDataTargets = new BasicEList(parametersAndDataPair.dataTargets)
 				for (currentDataTarget : currentDataTargets) {
-					var UnparameterizedDataIdentifying replacement = null
-					if (assignedParameters.contains(currentDataTarget)
-								&& assignment instanceof SpecificationParameter2DataSetAssignment) {
-						// replacement for data parameter
-						val specificationParameterAssignment = assignment as SpecificationParameter2DataSetAssignment
-						replacement = specificationParameterAssignment.assignedDataSet
-						unassignedSpecificationParameters?.remove(currentDataTarget)
-					} else if (currentDataTarget instanceof ParameterizedDataSetMapEntry 
-								&& assignment instanceof DataSetMapParameter2KeyAssignment) {
-						val parameterizedDataTarget = currentDataTarget as ParameterizedDataSetMapEntry
-						val dataSetMapParameterAssignment = assignment as DataSetMapParameter2KeyAssignment
-						val keyParameter = parameterizedDataTarget.parameter
-						if (assignedParameters.contains(keyParameter)) {
-							// replacement for data set map entries for which the key parameter is assigned
-							val parameterizedMap = parameterizedDataTarget.map
-							val assignedKey = dataSetMapParameterAssignment.assignedKey
-							var dataSetMapEntry = getFromMapValuedMap(this.dataSetMapAndKey2Entry, parameterizedMap, assignedKey)
-							if (dataSetMapEntry == null) {
-								dataSetMapEntry = DataFactoryImpl.eINSTANCE.createDataSetMapEntry
-								dataSetMapEntry.map = parameterizedMap
-								dataSetMapEntry.name = assignedKey
-								val container = parameterizedMap.eContainer
-								if (container instanceof ConfidentialitySpecification) {
-									val confidentialitySpecification = container as ConfidentialitySpecification
-									confidentialitySpecification.dataIdentifier.add(dataSetMapEntry)
-									this.assignmentSpecificDataSetMapEntries.add(new Pair(confidentialitySpecification,dataSetMapEntry))
-								} else {
-									throw new IllegalStateException("The parameterized map ' " + parameterizedMap + "' has to be contained in a confidentiality specification not in '" + container + "'!")
-								}	
-							}
-							replacement = dataSetMapEntry
-							unassignedSpecificationParameters?.remove(keyParameter)
-							dataSetMapEntriesWithUnassignedParameters?.remove(parameterizedDataTarget)
-						}
-					}
+					val parameterReplacementPair = getParameterAndReplacementForCurrentDataTarget(dataSetMapEntriesWithUnassignedParameters, assignedParameters, currentDataTarget, assignment)
+					val assignedParameter = parameterReplacementPair.key
+					val replacement = parameterReplacementPair.value
 					if (replacement != null) {
+						unassignedSpecificationParameters?.remove(assignedParameter)
 						// we will now add special parametersAndDataPairs relations
 						// which are only concerning the provided role of the connector
 						addToSetValuedMap(this.assignmentSpecificParametersAndDataPairs, connector, new Triplet(parametersAndDataPair, currentDataTarget, replacement))
 					}
+					return replacement
 				}
 			}
 		}
+	}
+	
+	private def dispatch Pair<SpecificationParameter,UnparameterizedDataIdentifying> getParameterAndReplacementForCurrentDataTarget(List<ParameterizedDataSetMapEntry> dataSetMapEntriesWithUnassignedParameters, Collection<SpecificationParameter> assignedParameters, DataIdentifying currentDataTarget, AbstractSpecificationParameterAssignment assignment) {
+		return new Pair(null,null)
+	}
+	
+	private def dispatch Pair<SpecificationParameter,UnparameterizedDataIdentifying> getParameterAndReplacementForCurrentDataTarget(List<ParameterizedDataSetMapEntry> dataSetMapEntriesWithUnassignedParameters, Collection<SpecificationParameter> assignedParameters, DataIdentifying currentDataTarget, SpecificationParameter2DataSetAssignment specificationParameterAssignment) {
+		if (assignedParameters.contains(currentDataTarget)) {
+			// replacement for data parameter
+			return new Pair(currentDataTarget, specificationParameterAssignment.assignedDataSet)
+		}
+	}
+	
+	private def dispatch Pair<SpecificationParameter,UnparameterizedDataIdentifying> getParameterAndReplacementForCurrentDataTarget(List<ParameterizedDataSetMapEntry> dataSetMapEntriesWithUnassignedParameters, Collection<SpecificationParameter> assignedParameters, ParameterizedDataSetMapEntry parameterizedDataTarget, DataSetMapParameter2KeyAssignment dataSetMapParameterAssignment) {
+		var UnparameterizedDataIdentifying replacement = null
+		val keyParameter = parameterizedDataTarget.parameter
+		if (assignedParameters.contains(keyParameter)) {
+			// replacement for data set map entries for which the key parameter is assigned
+			val parameterizedMap = parameterizedDataTarget.map
+			val assignedKey = dataSetMapParameterAssignment.assignedKey
+			var dataSetMapEntry = getFromMapValuedMap(this.dataSetMapAndKey2Entry, parameterizedMap, assignedKey)
+			if (dataSetMapEntry == null) {
+				dataSetMapEntry = DataFactoryImpl.eINSTANCE.createDataSetMapEntry
+				dataSetMapEntry.map = parameterizedMap
+				dataSetMapEntry.name = assignedKey
+				val container = parameterizedMap.eContainer
+				if (container instanceof ConfidentialitySpecification) {
+					val confidentialitySpecification = container as ConfidentialitySpecification
+					confidentialitySpecification.dataIdentifier.add(dataSetMapEntry)
+					this.assignmentSpecificDataSetMapEntries.add(new Pair(confidentialitySpecification,dataSetMapEntry))
+				} else {
+					throw new IllegalStateException("The parameterized map ' " + parameterizedMap + "' has to be contained in a confidentiality specification not in '" + container + "'!")
+				}	
+			}
+			replacement = dataSetMapEntry
+			dataSetMapEntriesWithUnassignedParameters?.remove(parameterizedDataTarget)
+		}
+		return new Pair(keyParameter,replacement)
 	}
 	
 	private def dispatch void prepareInformationFlowForMissingAssignment(AssemblyConnector connector, ParameterizedDataSetMapEntry unassignedDataSetMapEntry) {

@@ -2,6 +2,7 @@ package edu.kit.kastel.scbs.pcm2prologxsb.generator
 
 import edu.kit.ipd.sdq.mdsd.ecore2log.config.UserConfiguration
 import edu.kit.ipd.sdq.mdsd.ecore2log.generator.AbstractProfiledEcore2LogGenerator
+import edu.kit.kastel.scbs.confidentiality.ConfidentialitySpecification
 import edu.kit.kastel.scbs.confidentiality.data.DataIdentifying
 import edu.kit.kastel.scbs.confidentiality.data.DataSet
 import edu.kit.kastel.scbs.confidentiality.data.DataSetMapEntry
@@ -11,6 +12,7 @@ import edu.kit.kastel.scbs.pcm2prologxsb.config.PCM2PrologXSBFilter
 import edu.kit.kastel.scbs.pcm2prologxsb.config.PCMNameConfiguration
 import edu.kit.kastel.scbs.pcm2prologxsb.config.PrologXSBLogConfiguration
 import java.util.ArrayList
+import java.util.Collection
 import java.util.Collections
 import java.util.Comparator
 import java.util.List
@@ -24,10 +26,10 @@ import org.eclipse.emf.ecore.EStructuralFeature
 import org.eclipse.emf.ecore.resource.Resource
 import org.modelversioning.emfprofileapplication.StereotypeApplication
 import org.palladiosimulator.pcm.core.composition.AssemblyConnector
+import org.palladiosimulator.pcm.core.composition.AssemblyContext
+import org.palladiosimulator.pcm.core.composition.Connector
 import org.palladiosimulator.pcm.repository.OperationInterface
 import org.palladiosimulator.pcm.repository.Parameter
-import org.palladiosimulator.pcm.core.composition.Connector
-import org.palladiosimulator.pcm.core.composition.AssemblyContext
 
 class PCM2PrologXSBGenerator extends AbstractProfiledEcore2LogGenerator<PCMNameConfiguration> {
 	private val SpecificationParameterRemover specificationParameterRemover = new SpecificationParameterRemover()
@@ -222,13 +224,7 @@ class PCM2PrologXSBGenerator extends AbstractProfiledEcore2LogGenerator<PCMNameC
 //			instanceCommentClosing = generateInstanceCommentClosing(assignment)
 			newLine = generateNewLine()
 		}
-		for (aSDSME : aSDSMEs) {
-			val confidentialitySpecification = aSDSME.key
-			val dataSetMapEntry = aSDSME.value
-			contents += generateInstancePredicate(dataSetMapEntry)
-			val relationName = "dataIdentifier"
-			contents += generateRelation(relationName, generateID(confidentialitySpecification), generateID(dataSetMapEntry))
-		}
+		contents += generateAssignmentSpecificEntries(aSDSMEs)
 		// we map dataIdentifiers for each connector in order to avoid re-generating them several times
 		val aSPADPMap = specificationParameterRemover.assignmentSpecificParametersAndDataPairs
 		val connectorID = generateID(connector)
@@ -268,6 +264,18 @@ class PCM2PrologXSBGenerator extends AbstractProfiledEcore2LogGenerator<PCMNameC
 				val roleContent = generateRelation(roleSpecificRelationName, connectorID, roleValue)
 				contents += newLine + instanceCommentOpening + roleContent + instanceCommentClosing + newLine
 			}
+		}
+		return contents
+	}
+	
+	private def generateAssignmentSpecificEntries(Collection<Pair<ConfidentialitySpecification, DataSetMapEntry>> aSDSMEs) {
+		var contents = ""
+		for (aSDSME : aSDSMEs) {
+			val confidentialitySpecification = aSDSME.key
+			val dataSetMapEntry = aSDSME.value
+			contents += generateInstancePredicate(dataSetMapEntry)
+			val relationName = "dataIdentifier"
+			contents += generateRelation(relationName, generateID(confidentialitySpecification), generateID(dataSetMapEntry))
 		}
 		return contents
 	}
