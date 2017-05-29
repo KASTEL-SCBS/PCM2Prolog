@@ -24,11 +24,9 @@ import java.util.List
 import java.util.Map
 import java.util.Set
 import org.eclipse.emf.common.util.BasicEList
-import org.eclipse.emf.common.util.EList
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.internal.xtend.util.Triplet
 import org.eclipse.xtend.lib.annotations.Accessors
-import org.palladiosimulator.mdsdprofiles.api.StereotypeAPI
 import org.palladiosimulator.pcm.core.composition.AssemblyConnector
 import org.palladiosimulator.pcm.core.composition.AssemblyContext
 import org.palladiosimulator.pcm.core.composition.Connector
@@ -50,7 +48,7 @@ class SpecificationParameterRemover {
 	@Accessors(PUBLIC_GETTER)
 	private val Collection<Pair<ConfidentialitySpecification, DataSetMapEntry>> assignmentSpecificDataSetMapEntries = newArrayList()
 	@Accessors(PUBLIC_GETTER)
-	private val Map<Connector, Set<Triplet<ParametersAndDataPair, DataIdentifying, UnparameterizedDataIdentifying>>> assignmentSpecificParametersAndDataPairs = newHashMap()
+	private val Map<Connector, Set<Triplet<ParametersAndDataPair, ParameterizedDataSetMapEntry, UnparameterizedDataIdentifying>>> assignmentSpecificParametersAndDataPairs = newHashMap()
 	
 	private var Collection<DataSet> dataSets = new HashSet()
 	

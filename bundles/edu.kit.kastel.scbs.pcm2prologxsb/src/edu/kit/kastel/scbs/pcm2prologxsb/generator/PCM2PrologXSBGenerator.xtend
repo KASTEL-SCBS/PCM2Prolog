@@ -236,13 +236,13 @@ class PCM2PrologXSBGenerator extends AbstractProfiledEcore2LogGenerator<PCMNameC
 				val currentDataTarget= aSPADP.second
 				val replacementDataIdentifying = aSPADP.third
 				val replacement = switch (replacementDataIdentifying) {
-					DataSetMapEntry : "[" + generateID(replacementDataIdentifying) + "]"
+					DataSetMapEntry : generateID(replacementDataIdentifying)
 					DataSet : replacementDataIdentifying.name
 				}		
 				if (replacement != null) {
 					// we will now generate special parametersAndDataPairs relations
 					// which are only concerning the provided role of the connector
-					val idOfNewPair = generateIDValue(parametersAndDataPair, generateID(parametersAndDataPair) + "_" + generateID(connector) + "_substSpec_" + currentDataTarget + " <- " + replacement)
+					val idOfNewPair = generateIDValue(parametersAndDataPair, generateID(parametersAndDataPair) + "_" + generateID(connector) + "_substitute_" + currentDataTarget.parameter.name + "_in_" + currentDataTarget.map.name + "_with_" + replacement)
 					idsOfNewPairs.add(idOfNewPair)
 					// FIXME MK use generatePredicate or generateRelation
 					val instanceContent = parametersAndDataPairName + logConfig.generatePredicateOpening + idOfNewPair + logConfig.generatePredicateClosing
