@@ -257,8 +257,8 @@ class SpecificationParameterRemover {
 				val currentDataTargets = new BasicEList(parametersAndDataPair.dataTargets)
 				for (currentDataTarget : currentDataTargets) {
 					val parameterReplacementPair = getParameterAndReplacementForCurrentDataTarget(dataSetMapEntriesWithUnassignedParameters, assignedParameters, currentDataTarget, assignment)
-					val assignedParameter = parameterReplacementPair.key
-					val replacement = parameterReplacementPair.value
+					val assignedParameter = parameterReplacementPair?.key
+					val replacement = parameterReplacementPair?.value
 					if (replacement != null) {
 						unassignedSpecificationParameters?.remove(assignedParameter)
 						// we will now add special parametersAndDataPairs relations
