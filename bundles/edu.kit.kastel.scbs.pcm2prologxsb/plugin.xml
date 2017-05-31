@@ -81,7 +81,7 @@
             </command>
             <command
                   commandId="edu.kit.kastel.scbs.pcm2prologxsb.commands.createprologxsb"
-                  label="Create Prolog XSB Code (no comments,grouped,simpleIDs,singleFile,nodesc)"
+                  label="Create Prolog XSB Code (no comments,grouped,simpleIDs,singleFile,desc)"
                   style="push"
                   tooltip="Create Prolog XSB Code for Architectural Confidentiality Analysis">
                <parameter
@@ -102,7 +102,7 @@
                </parameter>
                <parameter
                      name="edu.kit.kastel.scbs.pcm2prologxsb.generateDescriptions"
-                     value="false">
+                     value="true">
                </parameter>
             </command>
             <command
