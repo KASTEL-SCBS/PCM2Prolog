@@ -104,7 +104,7 @@ class PCM2PrologXSBGenerator extends AbstractProfiledEcore2LogGenerator<PCMNameC
 	}
 	
 	override String generateMainContent(EList<EObject> firstLevelContents) {
-		specificationParameterRemover.preProcessFirstLevelContentsToBuildUpMaps(firstLevelContents)
+//		specificationParameterRemover.preProcessFirstLevelContentsToBuildUpMaps(firstLevelContents)
 		return super.generateMainContent(firstLevelContents)
 	}
 	
@@ -159,11 +159,11 @@ class PCM2PrologXSBGenerator extends AbstractProfiledEcore2LogGenerator<PCMNameC
 		return content
 	}
 	
-	def dispatch String generateDeeplyCorrectly(AssemblyConnector ac) {
-		specificationParameterRemover.prepareInformationFlowSpecificationsForParameterAssignments(ac)
-		val assignmentReplacements = generateInformationFlowForAssignments(ac)
-		return super.generateDeeply(ac) + assignmentReplacements
-	}
+//	def dispatch String generateDeeplyCorrectly(AssemblyConnector ac) {
+//		specificationParameterRemover.prepareInformationFlowSpecificationsForParameterAssignments(ac)
+//		val assignmentReplacements = generateInformationFlowForAssignments(ac)
+//		return super.generateDeeply(ac) + assignmentReplacements
+//	}
 	
 	override generateFeatureValues(EObject e, EStructuralFeature feature) {
 		return generateFeatureValuesCorrectly(e, feature)
@@ -206,77 +206,77 @@ class PCM2PrologXSBGenerator extends AbstractProfiledEcore2LogGenerator<PCMNameC
 		return parameterId
 	}
 	
-	/** CAUTION SIDE-EFFECTS: if unassignedSpecificationParameters or dataSetMapEntriesWithUnassignedParameters are provided, they are changed!
-	 * 
-	 *@param unassignedSpecificationParameters optional
-	 */
-	private def String generateInformationFlowForAssignments(Connector connector) {
-		val roleSpecificRelationName = "connectorSpecificParametersAndDataPairs"
-		val parametersAndDataPairName = "parametersAndDataPair"
-			
-		var contents = ""
-		val aSDSMEs = specificationParameterRemover.assignmentSpecificDataSetMapEntries
-		var instanceCommentOpening = ""
-		var instanceCommentClosing = ""
-		var newLine = ""
-		if (userConfig.generateComments) {
-//			instanceCommentOpening = generateInstanceCommentOpening(assignment)
-//			instanceCommentClosing = generateInstanceCommentClosing(assignment)
-			newLine = generateNewLine()
-		}
-		contents += generateAssignmentSpecificEntries(aSDSMEs)
-		// we map dataIdentifiers for each connector in order to avoid re-generating them several times
-		val aSPADPMap = specificationParameterRemover.assignmentSpecificParametersAndDataPairs
-		val connectorID = generateID(connector)
-		val aSPADPs = aSPADPMap.get(connector)
-		if (aSPADPs != null) {
-			val idsOfNewPairs = new ArrayList<String>()
-			for (aSPADP : aSPADPs) {
-				val parametersAndDataPair = aSPADP.first
-				val currentDataTarget= aSPADP.second
-				val replacementDataIdentifying = aSPADP.third
-				val replacement = switch (replacementDataIdentifying) {
-					DataSetMapEntry : "[" + generateID(replacementDataIdentifying) + "]"
-					DataSet : replacementDataIdentifying.name
-				}		
-				if (replacement != null) {
-					// we will now generate special parametersAndDataPairs relations
-					// which are only concerning the provided role of the connector
-					val idOfNewPair = generateIDValue(parametersAndDataPair, generateID(parametersAndDataPair) + "_" + generateID(connector) + "_substitute_" + currentDataTarget.parameter.name + "_in_" + currentDataTarget.map.name)// + "_with_" + replacement)
-					idsOfNewPairs.add(idOfNewPair)
-					// FIXME MK use generatePredicate or generateRelation
-					val instanceContent = parametersAndDataPairName + logConfig.generatePredicateOpening + idOfNewPair + logConfig.generatePredicateClosing
-					val sourcesFeatureName = "parameterSources"
-					val sourcesFeature = parametersAndDataPair.eClass.getEStructuralFeature(sourcesFeatureName)
-					//val sourcesValue = generateSingleFeatureValue(parametersAndDataPair, sourcesFeature)
-					val sourcesValue = generateManyFeatureValues(parametersAndDataPair,sourcesFeature)
-					val sourcesContent = generateRelation(sourcesFeatureName, idOfNewPair, concatAndFilterFeatureValue(sourcesValue))
-					val targetsFeatureName = "dataTargets"
-					// do the actual assignment by using the replacement instead of the data target value
-					val targetsValue = replacement
-					val targetsContent = generateRelation(targetsFeatureName, idOfNewPair, targetsValue)
-					contents += newLine + instanceCommentOpening + instanceContent + newLine + sourcesContent + newLine + targetsContent + instanceCommentClosing + newLine
-					contents += newLine + generateRelation("originalParametersAndDataPair", idOfNewPair, generateID(parametersAndDataPair)) + newLine
-				}
-			}
-			if (idsOfNewPairs.size > 0) {
-				val roleValue = idsOfNewPairs.toString
-				val roleContent = generateRelation(roleSpecificRelationName, connectorID, roleValue)
-				contents += newLine + instanceCommentOpening + roleContent + instanceCommentClosing + newLine
-			}
-		}
-		return contents
-	}
-	
-	private def generateAssignmentSpecificEntries(Collection<Pair<ConfidentialitySpecification, DataSetMapEntry>> aSDSMEs) {
-		var contents = ""
-		for (aSDSME : aSDSMEs) {
-			val confidentialitySpecification = aSDSME.key
-			val dataSetMapEntry = aSDSME.value
-			contents += generateInstancePredicate(dataSetMapEntry)
-			val relationName = "dataIdentifier"
-			contents += generateRelation(relationName, generateID(confidentialitySpecification), generateID(dataSetMapEntry))
-		}
-		return contents
-	}
+//	/** CAUTION SIDE-EFFECTS: if unassignedSpecificationParameters or dataSetMapEntriesWithUnassignedParameters are provided, they are changed!
+//	 * 
+//	 *@param unassignedSpecificationParameters optional
+//	 */
+//	private def String generateInformationFlowForAssignments(Connector connector) {
+//		val roleSpecificRelationName = "connectorSpecificParametersAndDataPairs"
+//		val parametersAndDataPairName = "parametersAndDataPair"
+//			
+//		var contents = ""
+//		val aSDSMEs = specificationParameterRemover.assignmentSpecificDataSetMapEntries
+//		var instanceCommentOpening = ""
+//		var instanceCommentClosing = ""
+//		var newLine = ""
+//		if (userConfig.generateComments) {
+////			instanceCommentOpening = generateInstanceCommentOpening(assignment)
+////			instanceCommentClosing = generateInstanceCommentClosing(assignment)
+//			newLine = generateNewLine()
+//		}
+//		contents += generateAssignmentSpecificEntries(aSDSMEs)
+//		// we map dataIdentifiers for each connector in order to avoid re-generating them several times
+//		val aSPADPMap = specificationParameterRemover.assignmentSpecificParametersAndDataPairs
+//		val connectorID = generateID(connector)
+//		val aSPADPs = aSPADPMap.get(connector)
+//		if (aSPADPs != null) {
+//			val idsOfNewPairs = new ArrayList<String>()
+//			for (aSPADP : aSPADPs) {
+//				val parametersAndDataPair = aSPADP.first
+//				val currentDataTarget= aSPADP.second
+//				val replacementDataIdentifying = aSPADP.third
+//				val replacement = switch (replacementDataIdentifying) {
+//					DataSetMapEntry : "[" + generateID(replacementDataIdentifying) + "]"
+//					DataSet : replacementDataIdentifying.name
+//				}		
+//				if (replacement != null) {
+//					// we will now generate special parametersAndDataPairs relations
+//					// which are only concerning the provided role of the connector
+//					val idOfNewPair = generateIDValue(parametersAndDataPair, generateID(parametersAndDataPair) + "_" + generateID(connector) + "_substitute_" + currentDataTarget.parameter.name + "_in_" + currentDataTarget.map.name)// + "_with_" + replacement)
+//					idsOfNewPairs.add(idOfNewPair)
+//					// FIXME MK use generatePredicate or generateRelation
+//					val instanceContent = parametersAndDataPairName + logConfig.generatePredicateOpening + idOfNewPair + logConfig.generatePredicateClosing
+//					val sourcesFeatureName = "parameterSources"
+//					val sourcesFeature = parametersAndDataPair.eClass.getEStructuralFeature(sourcesFeatureName)
+//					//val sourcesValue = generateSingleFeatureValue(parametersAndDataPair, sourcesFeature)
+//					val sourcesValue = generateManyFeatureValues(parametersAndDataPair,sourcesFeature)
+//					val sourcesContent = generateRelation(sourcesFeatureName, idOfNewPair, concatAndFilterFeatureValue(sourcesValue))
+//					val targetsFeatureName = "dataTargets"
+//					// do the actual assignment by using the replacement instead of the data target value
+//					val targetsValue = replacement
+//					val targetsContent = generateRelation(targetsFeatureName, idOfNewPair, targetsValue)
+//					contents += newLine + instanceCommentOpening + instanceContent + newLine + sourcesContent + newLine + targetsContent + instanceCommentClosing + newLine
+//					contents += newLine + generateRelation("originalParametersAndDataPair", idOfNewPair, generateID(parametersAndDataPair)) + newLine
+//				}
+//			}
+//			if (idsOfNewPairs.size > 0) {
+//				val roleValue = idsOfNewPairs.toString
+//				val roleContent = generateRelation(roleSpecificRelationName, connectorID, roleValue)
+//				contents += newLine + instanceCommentOpening + roleContent + instanceCommentClosing + newLine
+//			}
+//		}
+//		return contents
+//	}
+//	
+//	private def generateAssignmentSpecificEntries(Collection<Pair<ConfidentialitySpecification, DataSetMapEntry>> aSDSMEs) {
+//		var contents = ""
+//		for (aSDSME : aSDSMEs) {
+//			val confidentialitySpecification = aSDSME.key
+//			val dataSetMapEntry = aSDSME.value
+//			contents += generateInstancePredicate(dataSetMapEntry)
+//			val relationName = "dataIdentifier"
+//			contents += generateRelation(relationName, generateID(confidentialitySpecification), generateID(dataSetMapEntry))
+//		}
+//		return contents
+//	}
 }
