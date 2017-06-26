@@ -156,7 +156,13 @@ class PCM2PrologXSBFilter extends DefaultProfiledMetamodel2LogFilter {
 			'parameterSources',
 			'dataTargets',
 			// confidentiality.system
-			// nothing
+			'specificationParametersToReplace',
+			'assignedDataSet',
+			'assignedKey',
+			'providedSpecificationParameter',
+			'providedInterfaceNames',
+			'requiredSpecificationParameter',
+			'requiredInterfaceNames',
 			// confidentiality.resources
 			// nothing
 			// confidentiality.adversary

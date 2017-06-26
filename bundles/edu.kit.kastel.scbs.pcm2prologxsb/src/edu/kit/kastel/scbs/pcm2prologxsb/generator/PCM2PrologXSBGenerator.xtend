@@ -50,17 +50,17 @@ class PCM2PrologXSBGenerator extends AbstractProfiledEcore2LogGenerator<PCMNameC
 		return sortInputFiles(inputFiles)
 	}
 	
-	override preprocessInputResourceInPlace(Resource inputResource) {
-		inputResource.allContents.forEach[preprocessContent(it)]
-	}
+//	override preprocessInputResourceInPlace(Resource inputResource) {
+//		inputResource.allContents.forEach[preprocessContent(it)]
+//	}
 	
-	private def dispatch void preprocessContent(EObject eObject) {
-		// nothing to do in general
-	}
-	
-	private def dispatch void preprocessContent(AssemblyContext ac) {
-		this.specificationParameterRemover.preprocessSpecificationParameterEquationsAtAssemblyContext(ac)
-	}
+//	private def dispatch void preprocessContent(EObject eObject) {
+//		// nothing to do in general
+//	}
+//	
+//	private def dispatch void preprocessContent(AssemblyContext ac) {
+//		this.specificationParameterRemover.preprocessSpecificationParameterEquationsAtAssemblyContext(ac)
+//	}
 	
 	private def List<IFile> sortInputFiles(List<IFile> inputFiles) {
 		val preprocessedInputFiles = new ArrayList(inputFiles.size)
