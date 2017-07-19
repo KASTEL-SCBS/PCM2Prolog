@@ -165,30 +165,30 @@ class PCM2PrologXSBGenerator extends AbstractProfiledEcore2LogGenerator<PCMNameC
 //		return super.generateDeeply(ac) + assignmentReplacements
 //	}
 	
-	override generateFeatureValues(EObject e, EStructuralFeature feature) {
-		return generateFeatureValuesCorrectly(e, feature)
-	}
+//	override generateFeatureValues(EObject e, EStructuralFeature feature) {
+//		return generateFeatureValuesCorrectly(e, feature)
+//	}
 	
-	def dispatch List<String> generateFeatureValuesCorrectly(EObject e, EStructuralFeature feature) {
-		return super.generateFeatureValues(e, feature)
-	}
+//	def dispatch List<String> generateFeatureValuesCorrectly(EObject e, EStructuralFeature feature) {
+//		return super.generateFeatureValues(e, feature)
+//	}
 		
-	def dispatch List<String> generateFeatureValuesCorrectly(ParametersAndDataPair padsp, EReference reference) {
-		// only generate relations for those dataTargets that are not parameterized
-		// i.e. skip all parameterized dataTargets
-		val dataTargetsName = "dataTargets"
-		if (reference.name?.equals(dataTargetsName)) {
-			val dataTargets = padsp.eGet(reference) as List<DataIdentifying>
-			val unparameterizedDataTargets = new BasicEList<DataIdentifying>(dataTargets.size)
-			for (dataTarget : dataTargets) {
-				if (dataTarget instanceof UnparameterizedDataIdentifying) {
-					unparameterizedDataTargets.add(dataTarget)
-				}
-			}
-			return generateManyFeatureValues(padsp,reference,unparameterizedDataTargets)
-		}
-		return super.generateFeatureValues(padsp,reference)
-	}
+//	def dispatch List<String> generateFeatureValuesCorrectly(ParametersAndDataPair padsp, EReference reference) {
+//		// only generate relations for those dataTargets that are not parameterized
+//		// i.e. skip all parameterized dataTargets
+//		val dataTargetsName = "dataTargets"
+//		if (reference.name?.equals(dataTargetsName)) {
+//			val dataTargets = padsp.eGet(reference) as List<DataIdentifying>
+//			val unparameterizedDataTargets = new BasicEList<DataIdentifying>(dataTargets.size)
+//			for (dataTarget : dataTargets) {
+//				if (dataTarget instanceof UnparameterizedDataIdentifying) {
+//					unparameterizedDataTargets.add(dataTarget)
+//				}
+//			}
+//			return generateManyFeatureValues(padsp,reference,unparameterizedDataTargets)
+//		}
+//		return super.generateFeatureValues(padsp,reference)
+//	}
 	
 	private def String getSizeOfId(String parameterName) {
 		var sizeOfId = "sizeOf_" + parameterName + "_"
