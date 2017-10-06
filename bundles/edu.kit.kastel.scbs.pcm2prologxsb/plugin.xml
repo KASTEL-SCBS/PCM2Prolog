@@ -39,6 +39,11 @@
                name="generateDescriptions"
                optional="true">
          </commandParameter>
+         <commandParameter
+               id="edu.kit.kastel.scbs.pcm2prologxsb.runjiprolog"
+               name="runJIProlog"
+               optional="true">
+         </commandParameter>
       </command>
    </extension>
    <extension
@@ -78,6 +83,10 @@
                      name="edu.kit.kastel.scbs.pcm2prologxsb.generateDescriptions"
                      value="true">
                </parameter>
+               <parameter
+                     name="edu.kit.kastel.scbs.pcm2prologxsb.runjiprolog"
+                     value="false">
+               </parameter>
             </command>
             <command
                   commandId="edu.kit.kastel.scbs.pcm2prologxsb.commands.createprologxsb"
@@ -103,6 +112,10 @@
                <parameter
                      name="edu.kit.kastel.scbs.pcm2prologxsb.generateDescriptions"
                      value="true">
+               </parameter>
+               <parameter
+                     name="edu.kit.kastel.scbs.pcm2prologxsb.runjiprolog"
+                     value="false">
                </parameter>
             </command>
             <command
@@ -130,7 +143,41 @@
                      name="edu.kit.kastel.scbs.pcm2prologxsb.generateDescriptions"
                      value="false">
                </parameter>
-            </command>            
+              <parameter
+                     name="edu.kit.kastel.scbs.pcm2prologxsb.runjiprolog"
+                     value="false">
+               </parameter>
+            </command> 
+            <command
+                  commandId="edu.kit.kastel.scbs.pcm2prologxsb.commands.createprologxsb"
+                  label="Run Security Analysis"
+                  style="push"
+                  tooltip="TODO">
+               <parameter
+                     name="edu.kit.kastel.scbs.pcm2prologxsb.generateCommentsParameter"
+                     value="true">
+               </parameter>
+               <parameter
+                     name="edu.kit.kastel.scbs.pcm2prologxsb.groupFactsParameter"
+                     value="false">
+               </parameter>
+               <parameter
+                     name="edu.kit.kastel.scbs.pcm2prologxsb.simplifyIDsParameter"
+                     value="true">
+               </parameter>
+               <parameter
+                     name="edu.kit.kastel.scbs.pcm2prologxsb.concatOutputToSingleFileParameter"
+                     value="false">
+               </parameter>
+               <parameter
+                     name="edu.kit.kastel.scbs.pcm2prologxsb.generateDescriptions"
+                     value="true">
+               </parameter>
+               <parameter
+                     name="edu.kit.kastel.scbs.pcm2prologxsb.runjiprolog"
+                     value="true">
+               </parameter>
+            </command>           
             <visibleWhen
                   checkEnabled="false">
                <with
@@ -174,5 +221,4 @@
          </separator>
       </menuContribution>
    </extension>
-
 </plugin>

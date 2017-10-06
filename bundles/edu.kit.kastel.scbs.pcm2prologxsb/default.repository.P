@@ -1,0 +1,748 @@
+hasService(Interface, Service) :-
+        signatures(Interface,Services),
+        member(Service, Services).
+
+hasParameter(Service,parm(Service,ParameterName)) :-
+        % operationSignature(Service),
+        parameters(Service, Parameters),
+        member(ParameterName, Parameters).
+
+hasParameter(Service,parm(Service,sizeOf(ParameterName))) :-
+        % operationSignature(Service),
+        parameters(Service, Parameters),
+        member(ParameterName, Parameters).
+
+hasParameter(Service,parm(Service,ServiceParamaterName)) :-
+	serviceParameters(Interface,ServiceParamaterNames),
+	member(ServiceParamaterName,ServiceParamaterNames),
+	hasService(Interface,Service).
+
+hasParameter(Service,parm(Service,sizeOf(ServiceParamaterName))) :-
+	serviceParameters(Interface,ServiceParamaterNames),
+	member(ServiceParamaterName,ServiceParamaterNames),
+	hasService(Interface,Service).
+
+
+
+
+
+returnParameter(Service,return(Service)) :-
+        % operationSignature(Service),
+        returnType(Service,[_Type]).
+
+returnParameter(Service,sizeOf(return(Service))) :-
+        % operationSignature(Service),
+        returnType(Service,[_Type]).
+
+% TODO: this just cannot work with the current palladio fact export: if there are two different signatures with a common parameter name X,
+% *two* facts dataType(X,Type) are generated. Luckily, typeOf/2 isn't currently uses anywhere in the access analysis.
+typeOf(parm(Service,sizeOf(ParameterName)), int) :- !,
+        hasParameter(Service, parm(Service,ParameterName)).
+typeOf(parm(Service,ParameterName), unknownType) :-
+        hasParameter(Service, parm(Service,ParameterName)).
+
+typeOf(return(Service),Type) :-
+	returnParameter(Service, return(Service)),
+        returnType(Service,[Type]).
+
+
+provides(Component, Interface) :-
+        basicComponent(Component),
+        providedRoles(Component,Roles), member(Role,Roles),
+        providedInterface(Role,[Interface]).
+
+requires(Component, Interface) :-
+        basicComponent(Component),
+        requiredRoles(Component,Roles), member(Role,Roles),
+        requiredInterface(Role,[Interface]).
+
+
+% % resourceContainer/2 and linkingResources/2 are appearantly redundant,
+% % hence we do not use the following 2 rules, but the 2 simpler rules thereafter
+% resourcecontainers(RC) :- resourceContainer(_Environment, Containers), member(RC, Containers).
+% linkingresources(LR) :- linkingResources(_Environment, Links), member(LR, Links).
+
+linkingresources(LR) :- linkingResource(LR).
+resourcecontainers(RC) :- resourceContainer(RC).
+
+system(Context) :- assemblyContext(Context).
+
+systemProvides(Interface) :- systemProvidesAssembledTo(Interface,_).
+
+systemRequires(Interface) :- systemRequiredAssembledTo(Interface,_).
+
+systemAssembledTo(RequiringContext, Interface, byAssembly(ProvidingContext)) :-
+        assemblyConnector(Connector),
+        requiringAssemblyContext(Connector, [RequiringContext]),
+        providingAssemblyContext(Connector, [ProvidingContext]),
+        requiredRole(Connector, [RequiredRole]),
+        requiredInterface(RequiredRole, [Interface]),
+        providedRole(Connector, [ProvidedRole]),        % By wellformedness of exported models, thes
+        providedInterface(ProvidedRole, [Interface]).   % two subgoals are presumably redundant.
+
+
+systemProvidesAssembledTo(Interface, Context) :-
+        providedDelegationConnector(Connector),
+        assemblyContext(Connector,[Context]),
+
+        innerProvidedRole(Connector,[InnerProvidedRole]),
+        operationProvidedRole(InnerProvidedRole), % TODO: redundant?
+        providedInterface(InnerProvidedRole,[Interface]),
+
+        % TODO: redundant?
+        outerProvidedRole(Connector,[OuterProvidedRole]),
+        operationProvidedRole(OuterProvidedRole), % TODO: redundant?
+        providedInterface(OuterProvidedRole,[Interface]).
+
+
+systemRequiredAssembledTo(Interface, Context) :-
+        requiredDelegationConnector(Connector),
+        assemblyContext(Connector,[Context]),
+
+        innerRequiredRole(Connector,[InnerRequiredRole]),
+        operationRequiredRole(InnerRequiredRole), % TODO: redundant?
+        requiredInterface(InnerRequiredRole,[Interface]),
+
+        % TODO: redundant?
+        outerRequiredRole(Connector,[OuterRequiredRole]),
+        operationRequiredRole(OuterRequiredRole), % TODO: redundant?
+        requiredInterface(OuterRequiredRole,[Interface]).
+
+
+runsOn(AssemblyContext, ResourceContainer) :-
+        allocationContext(AllocationContext),
+	resourceContainer(ResourceContainer),
+        resourceContainer(AllocationContext,[ResourceContainer]),
+        assemblyContext_AllocationContext(AllocationContext,[AssemblyContext]).
+
+componentOf(AssemblyContext, Component) :-
+        assemblyContext(AssemblyContext), % TODO: likely redundant
+        encapsulatedComponent(AssemblyContext,[Component]).
+
+% Apparently, in Palladio a single Link can connect multiple container, so we cannot use:
+% connects(Link,RCLeft,RCRight) :- connectedResourceContainers(Link,[RCLeft,RCRight]).
+% connects(Link,RCLeft,RCRight) :- connectedResourceContainers(Link,[RCRight,RCLeft]).
+
+connects(Link,RCLeft,RCRight) :-
+	connectedResourceContainers(Link,RCs),
+	member(RCLeft,RCs),
+	member(RCRight,RCs),
+	RCLeft \= RCRight.
+
+
+isLocation(Location) :- location(Location).
+
+% TODO: there currently appears to be no palladio stereotype corresponding to uiInterfaceOn, as was required in the paper submission.
+% Instead, i consider every interface provided by the system as an uiInterface. Isn't this what we want?
+uiInterfaceOn(Container,Interface) :-
+        outerProvidedRole(Connector,[ProvidedRole]),
+        assemblyContext(Connector, [AssemblyContext]),
+        assemblyContext_AllocationContext(AllocationContext,[AssemblyContext]),
+        resourceContainer(AllocationContext,[Container]),
+        providedInterface(ProvidedRole,[Interface]).
+uiInterfaceOn(Container,Interface) :-
+        outerRequiredRole(Connector,[ProvidedRole]),
+        assemblyContext(Connector,        [AssemblyContext]),
+        assemblyContext_AllocationContext(AllocationContext,[AssemblyContext]),
+        resourceContainer(AllocationContext,[Container]),
+        requiredInterface(ProvidedRole,[Interface]).
+
+
+dataset(Dataset) :- dataSet(Dataset).
+dataset(DatasetMapEntry) :- dataSetMapEntry(DatasetMapEntry).
+
+attacker(Attacker) :- adversary(Attacker).
+
+mayknow(Attacker,Dataset) :-
+        mayKnowData(Attacker, Datasets),
+        member(Dataset, Datasets).
+
+% First: non-connection-specific paramatersAndDataPairs
+% cases such as: parameterSources(6,[..,x,..]).
+%    as well as: parameterSources(6,[..,sizeOf(x),..]).
+includes(parm(Service,ParameterName), Dataset, Context) :-
+        hasParameter(Service, parm(Service,ParameterName)),
+	hasService(Interface,Service),
+	interfacesOn(_Container,Interface,Context),
+        parametersAndDataPairs(Service, Pairs),
+        member(Pair, Pairs),
+        parameterSources(Pair,ParameterNames),
+        member(ParameterName, ParameterNames),
+        dataTargets(Pair, Datasets),
+        member(Dataset, Datasets).
+
+% cases such as: parameterSources(6,[..,*,..]).
+includes(parm(Service,ParameterName), Dataset, Context) :-
+        hasParameter(Service, parm(Service,ParameterName)),
+	hasService(Interface,Service),
+	interfacesOn(_Container,Interface,Context),
+        parametersAndDataPairs(Service, Pairs),
+        member(Pair, Pairs),
+        parameterSources(Pair,ParameterNames),
+        member(*, ParameterNames),
+        dataTargets(Pair, Datasets),
+        member(Dataset, Datasets).
+includes(return(Service), Dataset, Context) :-
+        returnParameter(Service, return(Service)),
+	hasService(Interface,Service),
+	interfacesOn(_Container,Interface,Context),
+        parametersAndDataPairs(Service, Pairs),
+        member(Pair, Pairs),
+        parameterSources(Pair,ParameterNames),
+        member(*, ParameterNames),
+        dataTargets(Pair, Datasets),
+        member(Dataset, Datasets).
+includes(sizeOf(return(Service)), Dataset, Context) :-
+        returnParameter(Service, sizeOf(return(Service))),
+	hasService(Interface,Service),
+	interfacesOn(_Container,Interface,Context),
+        parametersAndDataPairs(Service, Pairs),
+        member(Pair, Pairs),
+        parameterSources(Pair,ParameterNames),
+        member(*, ParameterNames),
+        dataTargets(Pair, Datasets),
+        member(Dataset, Datasets).
+
+
+% cases such as: parameterSources(6,[..,sizeOf(*),..]).
+includes(parm(Service,sizeOf(ParameterName)), Dataset,Context) :-
+        hasParameter(Service, parm(Service,sizeOf(ParameterName))),
+	hasService(Interface,Service),
+	interfacesOn(_Container,Interface,Context),
+        parametersAndDataPairs(Service, Pairs),
+        member(Pair, Pairs),
+        parameterSources(Pair,ParameterNames),
+        member(sizeOf(*), ParameterNames),
+        dataTargets(Pair, Datasets),
+        member(Dataset, Datasets).
+include(sizeOf(return(Service)), Dataset,Context) :-
+        returnParameter(Service, sizeOf(return(Service))),
+	hasService(Interface,Service),
+	interfacesOn(_Container,Interface,Context),
+        parametersAndDataPairs(Service, Pairs),
+        member(Pair, Pairs),
+        parameterSources(Pair,ParameterNames),
+        member(sizeOf(*), ParameterNames),
+        dataTargets(Pair, Datasets),
+        member(Dataset, Datasets).
+
+
+% cases such as: parameterSources(6,[..,return,..]).
+includes(return(Service), Dataset, Context) :-
+        returnParameter(Service, return(Service)),
+	hasService(Interface,Service),
+	interfacesOn(_Container,Interface,Context),
+        parametersAndDataPairs(Service, Pairs),
+        member(Pair, Pairs),
+        parameterSources(Pair,ParameterNames),
+        member(return, ParameterNames),
+        dataTargets(Pair, Datasets),
+        member(Dataset, Datasets).
+
+% TODO ALL default for calls? if nothing is specified no knowledge that a call has happened my flow
+includesCall(Service, Dataset,Context) :-
+        hasService(Interface,Service),
+        interfacesOn(_Container,Interface,Context),
+        parametersAndDataPairs(Service, Pairs),
+        member(Pair, Pairs),
+        parameterSources(Pair,ParameterNames),
+        member(call, ParameterNames),
+        dataTargets(Pair, Datasets),
+        member(Dataset, Datasets).
+includesCall(Service, Dataset,Context) :-
+        hasService(Interface,Service),
+        interfacesOn(_Container,Interface,Context),
+        parametersAndDataPairs(Service, Pairs),
+        member(Pair, Pairs),
+        parameterSources(Pair,ParameterNames),
+        member(*, ParameterNames),
+        dataTargets(Pair, Datasets),
+        member(Dataset, Datasets).
+
+
+
+contextOfConnector(Connector, Context, Interface) :-
+	requiringAssemblyContext(Connector,[Context]),
+        requiredRole(Connector, [RequiredRole]),
+        requiredInterface(RequiredRole, [Interface]).
+contextOfConnector(Connector, Context, Interface) :-
+	providingAssemblyContext(Connector,[Context]),
+        providedRole(Connector, [ProvidedRole]),
+        providedInterface(ProvidedRole, [Interface]).
+
+% 2nd: connection-specific paramatersAndDataPairs
+% cases such as: parameterSources(6,[..,x,..]).
+%    as well as: parameterSources(6,[..,sizeOf(x),..]).
+includes(parm(Service,ParameterName), Dataset, Context) :-
+        hasParameter(Service, parm(Service,ParameterName)),
+        hasService(Interface,Service),
+
+        connectorSpecificParametersAndDataPairs(Connector,Pairs),
+        contextOfConnector(Connector, Context,Interface),
+
+        member(Pair, Pairs),
+
+        originalParametersAndDataPair(Pair,OriginalPair),
+        parametersAndDataPairs(Service, OriginalPairs),
+        member(OriginalPair,OriginalPairs),
+
+        parameterSources(Pair,ParameterNames),
+        member(ParameterName, ParameterNames),
+        dataTargets(Pair, Datasets),
+        member(Dataset, Datasets).
+
+% cases such as: parameterSources(6,[..,*,..]).
+includes(parm(Service,ParameterName), Dataset, Context) :-
+        hasParameter(Service, parm(Service,ParameterName)),
+	hasService(Interface,Service),
+        connectorSpecificParametersAndDataPairs(Connector,Pairs),
+        contextOfConnector(Connector, Context,Interface),
+        member(Pair, Pairs),
+        originalParametersAndDataPair(Pair,OriginalPair),
+        parametersAndDataPairs(Service, OriginalPairs),
+        member(OriginalPair,OriginalPairs),
+        parameterSources(Pair,ParameterNames),
+        member(*, ParameterNames),
+        dataTargets(Pair, Datasets),
+        member(Dataset, Datasets).
+includes(return(Service), Dataset, Context) :-
+	returnParameter(Service, return(Service)),
+	hasService(Interface,Service),
+        connectorSpecificParametersAndDataPairs(Connector,Pairs),
+        contextOfConnector(Connector, Context,Interface),
+        member(Pair, Pairs),
+        originalParametersAndDataPair(Pair,OriginalPair),
+        parametersAndDataPairs(Service, OriginalPairs),
+        member(OriginalPair,OriginalPairs),
+        parameterSources(Pair,ParameterNames),
+        member(*, ParameterNames),
+        dataTargets(Pair, Datasets),
+        member(Dataset, Datasets).
+includes(sizeOf(return(Service)), Dataset, Context) :-
+	returnParameter(Service, sizeOf(return(Service))),
+	hasService(Interface,Service),
+        connectorSpecificParametersAndDataPairs(Connector,Pairs),
+        contextOfConnector(Connector, Context,Interface),
+        member(Pair, Pairs),
+        originalParametersAndDataPair(Pair,OriginalPair),
+        parametersAndDataPairs(Service, OriginalPairs),
+        member(OriginalPair,OriginalPairs),
+        parameterSources(Pair,ParameterNames),
+        member(*, ParameterNames),
+        dataTargets(Pair, Datasets),
+        member(Dataset, Datasets).
+
+
+% cases such as: parameterSources(6,[..,sizeOf(*),..]).
+includes(parm(Service,sizeOf(ParameterName)), Dataset,Context) :-
+        hasParameter(Service, parm(Service,sizeOf(ParameterName))),
+	hasService(Interface,Service),
+
+        connectorSpecificParametersAndDataPairs(Connector,Pairs),
+        contextOfConnector(Connector, Context,Interface),
+
+        member(Pair, Pairs),
+
+        originalParametersAndDataPair(Pair,OriginalPair),
+        parametersAndDataPairs(Service, OriginalPairs),
+        member(OriginalPair,OriginalPairs),
+
+	parameterSources(Pair,ParameterNames),
+        member(sizeOf(*), ParameterNames),
+        dataTargets(Pair, Datasets),
+        member(Dataset, Datasets).
+includes(sizeOf(return(Service)), Dataset,Context) :-
+	returnParameter(Service, sizeOf(return(Service))),
+	hasService(Interface,Service),
+
+        connectorSpecificParametersAndDataPairs(Connector,Pairs),
+        contextOfConnector(Connector, Context,Interface),
+
+        member(Pair, Pairs),
+
+        originalParametersAndDataPair(Pair,OriginalPair),
+        parametersAndDataPairs(Service, OriginalPairs),
+        member(OriginalPair,OriginalPairs),
+
+	parameterSources(Pair,ParameterNames),
+        member(sizeOf(*), ParameterNames),
+        dataTargets(Pair, Datasets),
+        member(Dataset, Datasets).
+
+
+% cases such as: parameterSources(6,[..,return,..]).
+includes(return(Service), Dataset, Context) :-
+        returnParameter(Service, return(Service)),
+	hasService(Interface,Service),
+
+        connectorSpecificParametersAndDataPairs(Connector,Pairs),
+        contextOfConnector(Connector, Context,Interface),
+
+        member(Pair, Pairs),
+
+        originalParametersAndDataPair(Pair,OriginalPair),
+        parametersAndDataPairs(Service, OriginalPairs),
+        member(OriginalPair,OriginalPairs),
+
+        parameterSources(Pair,ParameterNames),
+        member(return, ParameterNames),
+        dataTargets(Pair, Datasets),
+        member(Dataset, Datasets).
+
+% TODO ALL default for calls? if nothing is specified no knowledge that a call has happened my flow
+includesCall(Service, Dataset,Context) :-
+        hasService(Interface,Service),
+
+        connectorSpecificParametersAndDataPairs(Connector,Pairs),
+        contextOfConnector(Connector, Context,Interface),
+
+        member(Pair, Pairs),
+
+        originalParametersAndDataPair(Pair,OriginalPair),
+        parametersAndDataPairs(Service, OriginalPairs),
+        member(OriginalPair,OriginalPairs),
+
+        parameterSources(Pair,ParameterNames),
+        member(call, ParameterNames),
+        dataTargets(Pair, Datasets),
+        member(Dataset, Datasets).
+includesCall(Service, Dataset,Context) :-
+        hasService(Interface,Service),
+
+        connectorSpecificParametersAndDataPairs(Connector,Pairs),
+        contextOfConnector(Connector, Context,Interface),
+
+        member(Pair, Pairs),
+
+        originalParametersAndDataPair(Pair,OriginalPair),
+        parametersAndDataPairs(Service, OriginalPairs),
+        member(OriginalPair,OriginalPairs),
+
+        parameterSources(Pair,ParameterNames),
+        member(*, ParameterNames),
+        dataTargets(Pair, Datasets),
+        member(Dataset, Datasets).
+
+
+
+
+
+% TODO: this differs somewhat from the description in the paper, owing to the different specification via tamper/location pairs.
+tamperingAbilities(Attacker, Location, TamperProtection) :-
+        adversary(Attacker),
+        locationsAndTamperProtectionsPairs(Attacker,Pairs),
+        member(Pair,Pairs),
+        locations(Pair,Locations),
+        member(Location,Locations),
+        tamperProtections(Pair, TamperProtections),
+        member(TamperProtection, TamperProtections).
+tamperingAbilities(Attacker, Location, none) :-
+        adversary(Attacker),
+        locationsAndTamperProtectionsPairs(Attacker,Pairs),
+        member(Pair,Pairs),
+        locations(Pair,Locations),
+        member(Location, Locations).
+
+% TODO: this differs somewhat from the description in the paper, owing to the different specification via tamper/location pairs.
+locationsAccessibleBy(Attacker, Location) :-
+        attacker(Attacker),
+        isLocation(Location),
+        once(tamperingAbilities(Attacker, Location, _TamperProtection)).
+
+
+furtherConnections(Container,Mode) :- connectionType(Container,[Mode]).
+
+sharingOf(Container,Mode) :- sharing(Container,[Mode]).
+sharingOf(Container,exclusive) :-
+        resourceContainer(Container),
+        not(sharing(Container,_)).
+sharingOf(Container,exclusive) :-
+        sharing(Container,[]),
+        resourceContainer(Container).
+
+
+
+% TODO: this differs somewhat from the description in the paper, owing to the different specification via tamper/location pairs.
+locationWithOrWithoutSpecifiedTamperProtection(Container,Location,Pair) :-
+        resourceContainer(Container),
+        locationsAndTamperProtectionsPairs(Container,Pairs),
+        member(Pair,Pairs),
+        locations(Pair,Locations),
+        member(Location,Locations).
+location(Container,Location, TamperProtection) :-
+        locationWithOrWithoutSpecifiedTamperProtection(Container,Location,Pair),
+        tamperProtections(Pair, TamperProptections),
+        member(TamperProtection, TamperProptections).
+location(Container,Location, none) :-
+        locationWithOrWithoutSpecifiedTamperProtection(Container,Location,Pair),
+        not((
+          tamperProtections(Pair, TamperProptections),
+          member(_TamperProtection, TamperProptections)
+        )).
+
+
+% TODO: this differs somewhat from the description in the paper, owing to the different specification via tamper/location pairs.
+% TODO MAX explain the semantics of an empty tamper protection set for the system spec and the adversary spec
+linkLocationWithOrWithoutSpecifiedTamperProtection(LinkingResource,Location, Pair) :-
+        linkingResource(LinkingResource),
+        locationsAndTamperProtectionsPairs(LinkingResource,Pairs),
+        member(Pair,Pairs),
+        locations(Pair,Locations),
+        member(Location,Locations).
+
+linkLocation(LinkingResource,Location, TamperProtection) :-
+        linkLocationWithOrWithoutSpecifiedTamperProtection(LinkingResource,Location, Pair),
+        tamperProtections(Pair, TamperProptections),
+        member(TamperProtection, TamperProptections).
+linkLocation(LinkingResource,Location, none) :-
+        linkLocationWithOrWithoutSpecifiedTamperProtection(LinkingResource,Location, Pair),
+        not((
+          tamperProtections(Pair, TamperProptections),
+          member(_TamperProtection, TamperProptections)
+        )).
+
+
+
+% Channels for which no encryption specification is given will be assumed not to encrypt anything
+% TODO: discuss wheter it is really this rule that should implement that, or whether palladio should export corresponding facts,
+% which it currently does not.
+encryptsExcept(Link,Dataset) :-
+        dataSet(Dataset),
+        not(unencryptedDataSets(Link, _)). % the two subgoals need to be ordered like this in order to please "justify".
+
+encryptsExcept(Link,Dataset) :-
+        unencryptedDataSets(Link, Datasets),
+        member(Dataset, Datasets).
+
+
+
+
+itemDescription(Item,Desc,InstanceDesc) :- description(Item,Desc,InstanceDesc), Desc \= 'null'.
+
+
+exposesPhysicallyAccessibleDataTo(Link,Attacker,Dataset) :-
+        attacker(Attacker),
+        encryptsExcept(Link, Dataset).
+
+% apparantly, xsb prolog does not balk at ungrouped facts, after all,
+% so here we can list failing rules for predicates for which the palladio export
+% may not always generate any facts at all.
+outerRequiredRole(_,_) :- fail.
+basicComponent(_) :- fail.
+unencryptedDataSets(_,_) :- fail.
+tamperProtections(_,_) :- fail.
+requiredDelegationConnector(_) :- fail.
+dataSetMapEntry(_) :- fail.
+sharing(_,_) :- fail. % see "default-rule" for sharingOf/2 in Instances/FromPalladio/securityInstance.P
+dataSetMap(_) :- fail.
+map(_,_) :- fail.
+compositeDataType(_) :- fail.
+connectorSpecificParametersAndDataPairs(_,_) :- fail.
+collectionDataType(_) :- fail.
+
+% Suppress warnings wrt unused predicates:
+fake_usage :-
+        addedServiceParameter(_),                    % addedServiceParameter(ServiceParamater)
+        addedServiceParameters(_,_),
+        adversaries(_),
+        adversaries(_,_),
+        allocation(_),
+        allocationContexts(_,_),
+        assemblyContexts(_,_),
+        communicationLinkResourceSpecifications(_,_),
+        components(_,_),
+	collectionDataType(_),
+        confidentialitySpecification(_),
+        connectors(_,_),
+	compositeDataType(_),
+        dataIdentifier(_,_),
+        dataSetMap(_),
+        dataSetMaps(_,_),
+        interfaces(_,_),
+        linkingResources(_,_),
+        locationsAndTamperProtectionsPair(_),
+        map(_,_),
+        operationInterface(_),
+        operationSignature(_),
+        parameter(_),
+        parametersAndDataPair(_),
+        parentInterfaces(_,_),
+        providedDelegationConnector(_),
+        repository(_),
+        resourceEnvironment(_),
+        sizeOf(_,_),
+        sizeOfParameter(_),
+        system(_),
+        tamperProtection(_),
+
+        shared = shared, exclusive = exclusive,
+        possible = possible, existing = existing, complete = complete,
+        none = none.
+
+
+accessibleParameters(Attacker,Parameter,Context) :-
+  % Ausgabe-Parameter, auf die der Angreifer als regulärer "Benutzer" des Systems Zugriff hat
+  providedInterfacesAccessibleTo(Attacker,Interface,Context),
+  hasService(Interface,Service),
+  returnParameter(Service, Parameter).
+
+accessibleParameters(Attacker,Parameter,Context) :-
+  % Eingabe-Parameter,auf die der Angreifer als regulärer "Benutzer" des Systems Zugriff hat, weil er vom System Aufgerufen wird.
+  requiredInterfacesAccessibleTo(Attacker,Interface,Context),
+  hasService(Interface,Service),
+  hasParameter(Service, Parameter).
+
+accessibleParameters(Attacker,Parameter,Context) :-
+  % Parameter, auf die der Angreifer Zugriff hat, weil er einen entsprechenden ResourceContainer angreifen konnte.
+  containersFullyAccessibleBy(Attacker, Container),
+  interfacesOn(Container,Interface,Context),
+  hasService(Interface,Service),
+  parametersOf(Service,Parameter).
+
+accessibleParameters(Attacker,Parameter,Left) :-
+  % Parameter, auf die der Angreifer Zugriff hat, weil er eine entsprechende LinkResource angreifen konnte.
+  linksDataAccessibleBy(Attacker, Link, DataSet),
+  connects(Link,ContainerLeft,ContainerRight),
+  runsOn(Left,ContainerLeft),
+  componentOf(Left,Component),
+  requires(Component,Interface),
+  systemAssembledTo(Left,Interface,byAssembly(Right)),
+  runsOn(Right,ContainerRight),
+  hasService(Interface, Service),
+  parametersOf(Service,Parameter),
+  includes(Parameter,DataSet,Left).
+
+
+observableServices(Attacker, Service, Context) :-
+  % Services, deren Aufrufe der Angreifer als regulärer "Benutzer" des Systems beobachten kann
+  requiredInterfacesAccessibleTo(Attacker,Interface,Context),
+  hasService(Interface, Service).
+
+observableServices(Attacker,Service,Context) :-
+  % Services, deren Aufrufe der Angreifer beobachten kann, weil er einen entsprechenden ResourceContainer angreifen konnte.
+  containersFullyAccessibleBy(Attacker,Container),
+  interfacesOn(Container,Interface, Context),
+  hasService(Interface,Service).
+
+observableServices(Attacker, Service, Left) :-
+  % Services, deren Aufrufe der Angreifer beobachten kann, weil er eine entsprechende LinkResource angreifen konnte.
+  linksDataAccessibleBy(Attacker, Link, DataSet),
+  connects(Link,ContainerLeft, ContainerRight),
+  runsOn(Left,ContainerLeft),
+  componentOf(Left,Component),
+  requires(Component,Interface),
+  systemAssembledTo(Left,Interface,byAssembly(Right)),
+  runsOn(Right,ContainerRight),
+  hasService(Interface,Service),
+  includesCall(Service,DataSet, Left).
+
+query6(Attacker) :- attacker(Attacker), isInSecureWithRespectTo(Attacker).
+
+nojustify6:-
+        write('justify6:'),nl,
+        findall((Attacker), query6(Attacker), Bag),
+        length(Bag,L),
+        write(Bag),nl,
+        write('length:'), write(L), nl.
+justify6 :-
+        write('justify6:'),nl,
+        findall((Attacker,E),
+        just_true(query6(Attacker),E),Bag),
+        length(Bag,L),
+        write(Bag),nl,
+        write('length:'), write(L), nl.
+
+
+
+isInSecureWithRespectTo(Attacker) :-
+        accessibleParameters(Attacker,Parameter, Context),
+        not(parameterAllowedToBeAccessedBy(Attacker,Parameter, Context)).
+
+isInSecureWithRespectTo(Attacker,Service) :-
+        observableServices(Attacker,Service, Context),
+        not(serviceAllowedToBeObservedBy(Attacker,Service, Context)).
+
+
+serviceAllowedToBeObservedBy(Attacker, Service, Context) :-
+        includesCall(Service, DataSet, Context),
+        mayknow(Attacker, DataSet).
+
+
+parameterAllowedToBeAccessedBy(Attacker, Parameter, Context) :-
+        includes(Parameter, DataSet, Context),
+        mayknow(Attacker, DataSet).
+
+
+containersFullyAccessibleBy(Attacker,Container) :-
+        containersPhysicalAccessibleBy(Attacker,Container,Location),
+        location(Container,Location,Method),
+        tamperingAbilities(Attacker,Location,Method).
+containersFullyAccessibleBy(_,Container) :-
+        sharingOf(Container,shared),
+        furtherConnections(Container,existing).
+containersFullyAccessibleBy(Attacker,Container) :-
+        containersPhysicalAccessibleBy(Attacker,Container,_),
+        sharingOf(Container,shared),
+        furtherConnections(Container,possible).
+
+
+linksDataAccessibleBy(Attacker,Link,Dataset) :-
+    linkAccessibleBy(Attacker,Link,Location),
+    linkLocation(Link,Location,Method),
+    tamperingAbilities(Attacker,Location,Method),
+    exposesPhysicallyAccessibleDataTo(Link,Attacker,Dataset).
+
+
+linkAccessibleBy(Attacker,Link,Location) :-
+    linkLocation(Link,Location,_),
+    locationsAccessibleBy(Attacker,Location).
+
+containersPhysicalAccessibleBy(Attacker,Container,Location) :-
+    location(Container,Location,_),
+    locationsAccessibleBy(Attacker,Location).
+
+providedInterfacesAccessibleTo(Attacker, Interface, Context) :-
+    containersPhysicalAccessibleBy(Attacker,Container,_),
+    providedInterfacesOn(Container, Interface, Context),
+    uiInterfaceOn(Container, Interface).
+
+requiredInterfacesAccessibleTo(Attacker, Interface, Context) :-
+    containersPhysicalAccessibleBy(Attacker,Container,_),
+    requiredInterfacesOn(Container, Interface, Context),
+    uiInterfaceOn(Container, Interface).
+
+
+providedInterfacesOn(Container,Interface,AssemblyContext) :-
+        system(AssemblyContext),
+        runsOn(AssemblyContext,Container),
+        componentOf(AssemblyContext,Component),
+        provides(Component,Interface).
+
+requiredInterfacesOn(Container,Interface,AssemblyContext) :-
+        system(AssemblyContext),
+        runsOn(AssemblyContext,Container),
+        componentOf(AssemblyContext,Component),
+        requires(Component,Interface).
+
+
+interfacesOn(Container,Interface,Context) :-
+        requiredInterfacesOn(Container,Interface,Context).
+interfacesOn(Container,Interface,Context) :-
+        providedInterfacesOn(Container,Interface,Context).
+
+
+parametersOf(Service, Parameter) :-
+        hasParameter(Service, Parameter).
+parametersOf(Service, Parameter) :-
+        returnParameter(Service, Parameter).
+
+providedInterfaces(Interface) :-
+        system(AssemblyContext),
+        componentOf(AssemblyContext,Component),
+        provides(Component,Interface).
+
+
+requiredInterfaces(Interface) :-
+        system(AssemblyContext),
+        componentOf(AssemblyContext,Component),
+        requires(Component,Interface).
