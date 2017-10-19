@@ -9,6 +9,8 @@ import org.palladiosimulator.pcm.core.entity.NamedElement
 import org.palladiosimulator.pcm.repository.Parameter
 import org.palladiosimulator.pcm.repository.PrimitiveDataType
 import org.palladiosimulator.pcm.resourceenvironment.ResourceEnvironment
+import edu.kit.kastel.scbs.confidentiality.resources.SharingType
+import edu.kit.kastel.scbs.confidentiality.resources.ConnectionType
 
 class PCMNameConfiguration extends DefaultMetamodel2LogNameConfiguration {
 	override getFileExtension() {
@@ -18,6 +20,10 @@ class PCMNameConfiguration extends DefaultMetamodel2LogNameConfiguration {
 	override getFeatureName(EObject object, EStructuralFeature feature) {
 		val featureName = super.getFeatureName(object, feature)
 		if (featureName != null) {
+			if ("name".equals(featureName)) {
+				return "nameFor"
+			}
+			
 			val indexOfFirstUnderline = featureName.indexOf("_")
 			if (indexOfFirstUnderline > -1) {
 				val keepOriginalFeatureNameSet = #{ 'assemblyContext_AllocationContext' }
@@ -99,11 +105,25 @@ class PCMNameConfiguration extends DefaultMetamodel2LogNameConfiguration {
 	
 	public val wildCardAtom = "*"
 	
+	def boolean isKeyword(String value) {
+		return isCallParameter(value) 
+		    || isWildCard(value) 
+		    || isSharing(value) 
+		    || isConnectionType(value)
+	} 
+
+	def boolean isSharing(String value) {
+		return !SharingType.VALUES.filter[ s | s.literal.equals(value)].isEmpty
+	} 
 	
-	def boolean isCallParameter(Object attributeValue) {
+	def boolean isConnectionType(String value) {
+		return !ConnectionType.VALUES.filter[ c | c.literal.equals(value)].isEmpty
+	} 
+	
+	def boolean isCallParameter(String attributeValue) {
 		return attributeValue.equals("\\call")
 	}
-	def boolean isWildCard(Object attributeValue) {
+	def boolean isWildCard(String attributeValue) {
 		return attributeValue.equals("*")
 	}
 	

@@ -346,77 +346,7 @@ class SpecificationParameterRemover {
 		return fakeAssignment
 	}
 	
-	public def void preprocessSpecificationParameterEquationsAtAssemblyContext(AssemblyContext assemblyContext) {
-		var boolean assignmentAdded = false
-		do {
-			assignmentAdded = false
-			val equationsAtAC = getEquationsAtAssemblyContext(assemblyContext)
-			for (equationAtAC : equationsAtAC) {
-				var providedNotRequired = true
-				val assignmentsForEquatedProvidedParameter = getAssignmentsForEquatedParameter(assemblyContext, equationAtAC, providedNotRequired)
-				providedNotRequired = false
-				val assignmentsForEquatedRequiredParameter = getAssignmentsForEquatedParameter(assemblyContext, equationAtAC, providedNotRequired)
-				// FIXME check in map for each connector whether it is replacing by obtaining a map from connector to assignments in getAssignmentsForEquatedParameter
-				val assignmentsForProvidedEmptyOrReplacing = assignmentsForEquatedProvidedParameter?.onlyEmptyCollectionsMapped || this.equationReplacingAssignments?.containsAll(assignmentsForEquatedProvidedParameter)
-				val assignmentsForRequiredEmptyOrReplacing = assignmentsForEquatedRequiredParameter?.onlyEmptyCollectionsMapped || this.equationReplacingAssignments?.containsAll(assignmentsForEquatedRequiredParameter)
-				val flattenedAssignmentsForEquatedProvidedParameter = assignmentsForEquatedProvidedParameter?.values.flatten().toList
-				val flattenedAssignmentsForEquatedRequiredParameter = assignmentsForEquatedRequiredParameter?.values.flatten().toList
-				
-				// we have to distinguish assignments that were added by the user and 
-				// assignments that were added by us: four cases are possible
-				if (assignmentsForProvidedEmptyOrReplacing) {
-					if (assignmentsForRequiredEmptyOrReplacing) {
-						// 1. no user assignments neither on provided nor on required side:
-						// copy in both directions
-						providedNotRequired = true
-						assignmentAdded = copyAssignments(assemblyContext, flattenedAssignmentsForEquatedRequiredParameter, providedNotRequired) || assignmentAdded
-						providedNotRequired = false
-						assignmentAdded = copyAssignments(assemblyContext, flattenedAssignmentsForEquatedProvidedParameter, providedNotRequired) || assignmentAdded
-					} else {
-						// 2. user assignments only at required side: 
-						// copy assignments collected at all connectors on required side to every connector on provided side
-						providedNotRequired = true
-						assignmentAdded = copyAssignments(assemblyContext, flattenedAssignmentsForEquatedRequiredParameter, providedNotRequired) || assignmentAdded
-					}
-				} else {
-					if (assignmentsForRequiredEmptyOrReplacing) {
-						// 3. user assignments only at provided side: 
-						// symmetric to case 2.
-						providedNotRequired = false
-						assignmentAdded = copyAssignments(assemblyContext, flattenedAssignmentsForEquatedProvidedParameter, providedNotRequired) || assignmentAdded
-					} else {
-						// 4. user assignments on both sides: not allowed! in the future we could demand that they have to be the same for every connector at every side or that one has to be stricter than the other 
-						throw new RuntimeException("Parameter equations are only allowed if the connectors that connect interfaces with the equated specification parameters only have assignments either on the provided or on the required side of the assembly context to which the equation is applied! This is not true for the assembly context '" + assemblyContext + "' and the equation '" + equationAtAC + "'!")
-					}
-				}
-			}
-		} while (assignmentAdded)
-	}
 	
-	private def Map<Connector,List<AbstractSpecificationParameterAssignment>> getAssignmentsForEquatedParameter(AssemblyContext assemblyContext, SpecificationParameterEquation equation, boolean providedNotRequired) {	
-		val namesOfInterfacesForWhichParameterIsEquated = if (providedNotRequired) equation.providedInterfaceNames else equation.requiredInterfaceNames
-		val equatedParameter = if (providedNotRequired) equation.providedSpecificationParameter else equation.requiredSpecificationParameter
-		val interfacesOfEquatedParameter = getInterfacesOfEquatedParameter(assemblyContext, namesOfInterfacesForWhichParameterIsEquated, providedNotRequired)
-		val connectors = assemblyContext.getAssemblyOrDelegationConnectors(providedNotRequired)
-		val Map<Connector,List<AbstractSpecificationParameterAssignment>> assignmentsForEquatedParameterAtAllConnectors = new HashMap()
-		for (connector : connectors) {
-			val connectedInterface = connector.getOperationInterface(providedNotRequired)
-			val interfaceOfEquatedParameter = interfacesOfEquatedParameter?.contains(connectedInterface)
-			if (interfaceOfEquatedParameter) {
-				val assignmentsAtConnector = getAssignmentsAtConnector(connector)
-				for (assignmentAtConnector : assignmentsAtConnector) {
-					val hasAssignmentForEquatedProvidedParameter = switch assignmentAtConnector {
-						DataSetMapParameter2KeyAssignment : assignmentAtConnector?.specificationParametersToReplace?.contains(equatedParameter)
-						// FIXME support SpecificationParameter2DataSetAssignment
-					}
-					if (hasAssignmentForEquatedProvidedParameter) {
-						assignmentsForEquatedParameterAtAllConnectors.add(connector, assignmentAtConnector, [newArrayList()])
-					}
-				}
-			}
-		}
-		return assignmentsForEquatedParameterAtAllConnectors
-	}
 	
 	private def List<OperationInterface> getInterfacesOfEquatedParameter(AssemblyContext assemblyContext, List<String> namesOfInterfacesForWhichParameterIsEquated, boolean providedNotRequired) {
 		val interfaces = assemblyContext.getOperationInterfaces(providedNotRequired)

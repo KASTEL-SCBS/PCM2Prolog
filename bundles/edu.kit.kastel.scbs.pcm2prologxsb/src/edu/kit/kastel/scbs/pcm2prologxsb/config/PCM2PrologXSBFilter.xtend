@@ -7,6 +7,7 @@ import org.eclipse.emf.ecore.EAttribute
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EReference
 import org.eclipse.emf.ecore.EStructuralFeature
+import edu.kit.kastel.scbs.confidentiality.data.DataSetMapEntry
 
 class PCM2PrologXSBFilter extends DefaultProfiledMetamodel2LogFilter {
 	//TODO: Kramersche Softwaretechnik-Magie. Da geht bestimmt was mit Aspekten oder sowas!!!
@@ -99,6 +100,10 @@ class PCM2PrologXSBFilter extends DefaultProfiledMetamodel2LogFilter {
 	
 	override relevantFeatureFor(EStructuralFeature feature, EObject e) {
 //		return true
+		val nameFeatureWhiteSet = # {
+			DataSetMapEntry
+		}
+
 		val featureNameWhiteSet = #{
 			// repository
 			'components__Repository',
@@ -145,6 +150,8 @@ class PCM2PrologXSBFilter extends DefaultProfiledMetamodel2LogFilter {
 			'addedServiceParameters',
 			'specificationParameterAssignments',
 			'specificationParameterEquations',
+			'leftInterfaces',
+			'rightInterfaces',
 			'locations',
 			'tamperProtections',
 			'locationsAndTamperProtectionsPairs',
@@ -159,10 +166,8 @@ class PCM2PrologXSBFilter extends DefaultProfiledMetamodel2LogFilter {
 			'specificationParametersToReplace',
 			'assignedDataSet',
 			'assignedKey',
-			'providedSpecificationParameter',
-			'providedInterfaceNames',
-			'requiredSpecificationParameter',
-			'requiredInterfaceNames',
+			'leftSpecificationParameter',
+			'rightSpecificationParameter',
 			// confidentiality.resources
 			// nothing
 			// confidentiality.adversary
@@ -175,7 +180,7 @@ class PCM2PrologXSBFilter extends DefaultProfiledMetamodel2LogFilter {
 			'signatures',
 			'assignments',
 			'equations',
-//			'serviceParameters'
+			'serviceParameters',
 			'specificationParameters'
 		}
 		if (logSkipped && !featureNameWhiteSet.contains(feature.name)) {
@@ -183,6 +188,9 @@ class PCM2PrologXSBFilter extends DefaultProfiledMetamodel2LogFilter {
 			val bundle = Platform.getBundle(pluginId)
 			val log = Platform.getLog(bundle);
 			log.log(new Status(Status.ERROR, pluginId,"skipped featureName: "  + feature.name))
+		}
+		if (feature.name.equals("name")) {
+			return !nameFeatureWhiteSet.filter[ c | c.isAssignableFrom(e.class)].isEmpty;
 		}
 		return featureNameWhiteSet.contains(feature.name)
 	}

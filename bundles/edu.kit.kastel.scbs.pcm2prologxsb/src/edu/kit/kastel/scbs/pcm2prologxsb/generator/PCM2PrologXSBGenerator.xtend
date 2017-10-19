@@ -50,6 +50,22 @@ class PCM2PrologXSBGenerator extends AbstractProfiledEcore2LogGenerator<PCMNameC
 		return sortInputFiles(inputFiles)
 	}
 	
+	override String generateAttributeValue(EObject e, Object attributeValue) {
+		if (attributeValue == null) return logConfig.generateNullPlaceholder();
+		val valString = attributeValue.toString();
+		try {
+			Integer.parseInt(valString)
+			return valString
+		} catch (NumberFormatException nfe) {
+			if (nameConfig.isKeyword(valString)) {
+				return valString
+			} else {
+				return "\"" + valString.replace("\"","\\\"") + "\""
+			}
+		}
+		        
+	}
+	
 //	override preprocessInputResourceInPlace(Resource inputResource) {
 //		inputResource.allContents.forEach[preprocessContent(it)]
 //	}
