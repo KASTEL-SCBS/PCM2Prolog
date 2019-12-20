@@ -4,7 +4,6 @@ Bundle-Name: Pcm2prologxbs
 Bundle-SymbolicName: edu.kit.kastel.scbs.pcm2prologxsb;singleton:=true
 Bundle-Version: 0.1
 Bundle-Vendor: KASTEL
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: com.google.guava,
  org.eclipse.xtext.xbase.lib,
  org.eclipse.xtend.lib,
@@ -26,4 +25,6 @@ Require-Bundle: com.google.guava,
  edu.kit.ipd.sdq.commons.util.pcm,
  edu.kit.ipd.sdq.commons.util.java
 Import-Package: org.apache.log4j;version="1.2.15"
+Bundle-ClassPath: libs/commons-cli-1.4.jar,
+ .
 
