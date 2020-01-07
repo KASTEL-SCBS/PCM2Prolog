@@ -1,6 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <plugin>
+   <extension
+         id="headlessPCM2PrologXSBApplication"
+         point="org.eclipse.core.runtime.applications">
+      <application
+            cardinality="singleton-global"
+            thread="main"
+            visible="true">
+         <run
+               class="edu.kit.kastel.scbs.pcm2prologxsb.generator.PCM2PrologXSB">
+         </run>
+      </application>
+   </extension>
+   <extension
+         id="headlessPCM2PrologXSBApplication"
+         point="org.eclipse.core.runtime.products">
+      <product
+            application="edu.kit.kastel.scbs.pcm2prologxsb.headlessPCM2PrologXSBApplication"
+            name="Headless PCM2PrologXSB">
+         <property
+               name="appName"
+               value="Headless PCM2PrologXSB">
+         </property>
+      </product>
+   </extension>
 	<!--<extension 
 	  point="org.eclipse.ui.handlers">
      <handler

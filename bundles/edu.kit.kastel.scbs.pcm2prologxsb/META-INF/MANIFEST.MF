@@ -24,7 +24,6 @@ Require-Bundle: com.google.guava,
  edu.kit.ipd.sdq.commons.util.mdsdprofiles,
  edu.kit.ipd.sdq.commons.util.pcm,
  edu.kit.ipd.sdq.commons.util.java
+Bundle-ClassPath: .
 Import-Package: org.apache.log4j;version="1.2.15"
-Bundle-ClassPath: libs/commons-cli-1.4.jar,
- .
 

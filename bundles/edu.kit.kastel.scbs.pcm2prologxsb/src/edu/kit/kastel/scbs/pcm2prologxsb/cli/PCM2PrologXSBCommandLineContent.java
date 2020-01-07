@@ -21,15 +21,23 @@ import com.google.common.io.Files;
 
 import edu.kit.ipd.sdq.mdsd.ecore2log.config.DefaultUserConfiguration;
 
-public class PCM2PrologXSBCommandLineContents {
+public class PCM2PrologXSBCommandLineContent {
 	private DefaultUserConfiguration userconfiguration;
 	private List<IFile> resources;
 	private List<String> resourcePaths;
 	
-	public PCM2PrologXSBCommandLineContents(DefaultUserConfiguration configuration, List<String> resourcePaths) {
+	public PCM2PrologXSBCommandLineContent(DefaultUserConfiguration configuration, List<String> resourcePaths) {
 		this.userconfiguration = configuration;
 		this.resourcePaths = resourcePaths;
 		resources = new ArrayList<IFile>();
+	}
+	
+	public PCM2PrologXSBCommandLineContent() {
+		
+	}
+	
+	public boolean isValid() {
+		return resources != null && resourcePaths != null && userconfiguration != null;
 	}
 	
 	
@@ -52,7 +60,7 @@ public class PCM2PrologXSBCommandLineContents {
 				if(!path.contains(workspaceLocation)) {
 					IProgressMonitor progressMonitor = new NullProgressMonitor();
 					IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-					IProject project = root.getProject("tmpProject");
+					IProject project = root.getProject("PCM2PrologGenerate");
 					try {
 						project.create(progressMonitor);
 					} catch (CoreException e) {
@@ -60,17 +68,19 @@ public class PCM2PrologXSBCommandLineContents {
 						e.printStackTrace();
 					}
 					
-					String tmpFolderLocation = workspaceLocation + "/" + "tmpProject" + "/" + "tmpFolder";
-					File tmpFolder = new File(tmpFolderLocation);
+					String generationFolderLocation = workspaceLocation + "/" + "PCM2PrologGenerate" + "/" + "generationFolder";
+					File tmpFolder = new File(generationFolderLocation);
 					tmpFolder.mkdirs();
 					
-					File destinationFile = new File(tmpFolderLocation + "/");
+					File destinationFile = new File(generationFolderLocation + "/");
 					try {
 						Files.copy(file, destinationFile);
 					} catch (IOException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
+				} else {
+					
 				}
 				
 				IFile[] files = ResourcesPlugin.getWorkspace().getRoot().findFilesForLocationURI(location);
@@ -78,7 +88,6 @@ public class PCM2PrologXSBCommandLineContents {
 					workspaceFile = files[0];
 				}
 				resources.add(workspaceFile);
-				
 			}
 		}
 		
