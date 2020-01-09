@@ -31,7 +31,7 @@ class PCM2PrologXSBFilter extends DefaultProfiledMetamodel2LogFilter {
 	private def boolean relevantElement(EObject e) {
 //		return true
 		var simpleClassName = e.class.simpleName
-		if (simpleClassName != null && simpleClassName.endsWith("Impl")) {
+		if (simpleClassName !== null && simpleClassName.endsWith("Impl")) {
 			simpleClassName = simpleClassName.substring(0,simpleClassName.length - "Impl".length)
 		}
 		return relevantSimpleClassName(simpleClassName)
@@ -201,7 +201,7 @@ class PCM2PrologXSBFilter extends DefaultProfiledMetamodel2LogFilter {
 			'null',
 			'[]'
 		}
-		return !(featureValue == null || featureValueBlackSet.contains(featureValue))
+		return !(featureValue === null || featureValueBlackSet.contains(featureValue))
 	}
 	
 	override relevantProfileNsURI(String profileNamespaceURI) {

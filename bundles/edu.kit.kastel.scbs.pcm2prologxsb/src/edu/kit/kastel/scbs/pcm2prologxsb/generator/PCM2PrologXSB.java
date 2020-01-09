@@ -28,7 +28,6 @@ public class PCM2PrologXSB implements IApplication {
 		Map<?, ?> contextArgs = context.getArguments();
 		String[] appArgs = (String[]) contextArgs.get("application.args");
 		
-		
 		PCM2PrologXSBCommandLineContent cliContent = new PCM2PrologxsbCLI().interrogateCommandLine(appArgs);
 			
 			

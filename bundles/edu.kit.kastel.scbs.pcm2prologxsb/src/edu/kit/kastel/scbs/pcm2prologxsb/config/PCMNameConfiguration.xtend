@@ -19,7 +19,7 @@ class PCMNameConfiguration extends DefaultMetamodel2LogNameConfiguration {
 	
 	override getFeatureName(EObject object, EStructuralFeature feature) {
 		val featureName = super.getFeatureName(object, feature)
-		if (featureName != null) {
+		if (featureName !== null) {
 			if ("name".equals(featureName)) {
 				return "nameFor"
 			}

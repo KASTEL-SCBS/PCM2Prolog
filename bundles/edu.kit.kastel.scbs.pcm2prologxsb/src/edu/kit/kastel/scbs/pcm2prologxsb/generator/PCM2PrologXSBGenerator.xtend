@@ -2,32 +2,20 @@ package edu.kit.kastel.scbs.pcm2prologxsb.generator
 
 import edu.kit.ipd.sdq.mdsd.ecore2log.config.UserConfiguration
 import edu.kit.ipd.sdq.mdsd.ecore2log.generator.AbstractProfiledEcore2LogGenerator
-import edu.kit.kastel.scbs.confidentiality.ConfidentialitySpecification
-import edu.kit.kastel.scbs.confidentiality.data.DataIdentifying
-import edu.kit.kastel.scbs.confidentiality.data.DataSet
-import edu.kit.kastel.scbs.confidentiality.data.DataSetMapEntry
-import edu.kit.kastel.scbs.confidentiality.data.UnparameterizedDataIdentifying
 import edu.kit.kastel.scbs.confidentiality.repository.ParametersAndDataPair
 import edu.kit.kastel.scbs.pcm2prologxsb.config.PCM2PrologXSBFilter
 import edu.kit.kastel.scbs.pcm2prologxsb.config.PCMNameConfiguration
 import edu.kit.kastel.scbs.pcm2prologxsb.config.PrologXSBLogConfiguration
 import java.util.ArrayList
-import java.util.Collection
 import java.util.Collections
 import java.util.Comparator
 import java.util.List
 import org.eclipse.core.resources.IFile
-import org.eclipse.emf.common.util.BasicEList
 import org.eclipse.emf.common.util.EList
 import org.eclipse.emf.ecore.EAttribute
 import org.eclipse.emf.ecore.EObject
-import org.eclipse.emf.ecore.EReference
-import org.eclipse.emf.ecore.EStructuralFeature
 import org.eclipse.emf.ecore.resource.Resource
 import org.modelversioning.emfprofileapplication.StereotypeApplication
-import org.palladiosimulator.pcm.core.composition.AssemblyConnector
-import org.palladiosimulator.pcm.core.composition.AssemblyContext
-import org.palladiosimulator.pcm.core.composition.Connector
 import org.palladiosimulator.pcm.repository.OperationInterface
 import org.palladiosimulator.pcm.repository.Parameter
 
@@ -51,7 +39,7 @@ class PCM2PrologXSBGenerator extends AbstractProfiledEcore2LogGenerator<PCMNameC
 	}
 	
 	override String generateAttributeValue(EObject e, Object attributeValue) {
-		if (attributeValue == null) return logConfig.generateNullPlaceholder();
+		if (attributeValue === null) return logConfig.generateNullPlaceholder();
 		val valString = attributeValue.toString();
 		try {
 			Integer.parseInt(valString)

@@ -97,7 +97,7 @@ class SpecificationParameterRemover {
 	// TODO MK this is obsolete as soon as the first three maps are replaced with org.apache.commons.collections4.SetValuedMap
 	def static private <K,V> void addToSetValuedMap(Map<K,Set<V>> map, K key, V value) {
 		var valueSet = map.get(key)
-		if (valueSet == null) {
+		if (valueSet === null) {
 			valueSet = new HashSet<V>()
 			map.put(key, valueSet)
 		}
@@ -107,7 +107,7 @@ class SpecificationParameterRemover {
 	// TODO MK this is obsolete as soon as the first three maps are replaced with org.apache.commons.collections4.SetValuedMap
 	def static private <K,V> Set<V> getFromSetValuedMap(Map<K,Set<V>> map, K key) {
 		var Set<V> values = map.get(key)
-		if (values == null) {
+		if (values === null) {
 			values = newHashSet()
 		}
 		return values
@@ -116,7 +116,7 @@ class SpecificationParameterRemover {
 	// TODO MK this is obsolete as soon as the fourth map is replaced with org.apache.commons.collections4.?
 	def static private <K,L,V> void addToMapValuedMap(Map<K,Map<L,V>> firstMap, K firstKey, L secondKey, V value) {
 		var secondMap = firstMap.get(firstKey)
-		if (secondMap == null) {
+		if (secondMap === null) {
 			secondMap = newHashMap()
 			firstMap.put(firstKey, secondMap)
 		}
@@ -151,10 +151,10 @@ class SpecificationParameterRemover {
 		val possibleKeys = getFromSetValuedMap(this.dataSetMap2Keys, dataSetMap)
 		// add indirectly used keys
 		val usedParameters = this.dataSetMap2ParamMap.get(dataSetMap)
-		if (usedParameters != null) {
+		if (usedParameters !== null) {
 			for (usedParameter : usedParameters) {
 				val usedKeys = this.dataParam2KeyMap.get(usedParameter)
-				if (usedKeys != null) {
+				if (usedKeys !== null) {
 					possibleKeys.addAll(usedKeys)
 				}
 			}
@@ -198,9 +198,9 @@ class SpecificationParameterRemover {
 		val informationFlowParameterStereotypeName = "InformationFlowParameter"
 		val specificationParametersFeatureName = "specificationParameters"
 		val interfaceSpecificationParameters = providedInterface?.getTaggedValues(informationFlowParameterStereotypeName, specificationParametersFeatureName, SpecificationParameter)
-		val specificationParameters = if (interfaceSpecificationParameters == null) Collections.emptySet() else new HashSet<SpecificationParameter>(interfaceSpecificationParameters)
+		val specificationParameters = if (interfaceSpecificationParameters === null) Collections.emptySet() else new HashSet<SpecificationParameter>(interfaceSpecificationParameters)
 		val providedSignatures = providedInterface?.signatures__OperationInterface
-		if (providedSignatures != null) {
+		if (providedSignatures !== null) {
 			for (providedSignature : providedSignatures) {
 				var signatureSpecificationParameters = providedSignature.getTaggedValues(informationFlowParameterStereotypeName, specificationParametersFeatureName, SpecificationParameter)
 				specificationParameters.addAll(signatureSpecificationParameters)
@@ -213,12 +213,12 @@ class SpecificationParameterRemover {
 		val providedInterface = connector.providedRole_AssemblyConnector.providedInterface__OperationProvidedRole
 		val informationFlowStereotypeName = "InformationFlow"
 		val parametersAndDataPairsFeatureName = "parametersAndDataPairs"
-		if (providedInterface == null) {
+		if (providedInterface === null) {
 			return Collections.emptyList() 
 		}
 		val parametersAndDataPairs = providedInterface.getTaggedValues(informationFlowStereotypeName, parametersAndDataPairsFeatureName, ParametersAndDataPair)
 		val providedSignatures = providedInterface.signatures__OperationInterface
-		if (providedSignatures != null) {
+		if (providedSignatures !== null) {
 			for (providedSignature : providedSignatures) {
 				var signatureParametersAndDataPairs = providedSignature.getTaggedValues(informationFlowStereotypeName, parametersAndDataPairsFeatureName, ParametersAndDataPair)
 				parametersAndDataPairs.addAll(signatureParametersAndDataPairs)
@@ -257,7 +257,7 @@ class SpecificationParameterRemover {
 					val parameterReplacementPair = getParameterAndReplacementForCurrentDataTarget(dataSetMapEntriesWithUnassignedParameters, assignedParameters, currentDataTarget, assignment)
 					val assignedParameter = parameterReplacementPair?.key
 					val replacement = parameterReplacementPair?.value
-					if (replacement != null) {
+					if (replacement !== null) {
 						unassignedSpecificationParameters?.remove(assignedParameter)
 						// we will now add special parametersAndDataPairs relations
 						// which are only concerning the provided role of the connector
@@ -288,7 +288,7 @@ class SpecificationParameterRemover {
 			val parameterizedMap = parameterizedDataTarget.map
 			val assignedKey = dataSetMapParameterAssignment.assignedKey
 			var dataSetMapEntry = getFromMapValuedMap(this.dataSetMapAndKey2Entry, parameterizedMap, assignedKey)
-			if (dataSetMapEntry == null) {
+			if (dataSetMapEntry === null) {
 				dataSetMapEntry = DataFactoryImpl.eINSTANCE.createDataSetMapEntry
 				dataSetMapEntry.map = parameterizedMap
 				dataSetMapEntry.name = assignedKey
