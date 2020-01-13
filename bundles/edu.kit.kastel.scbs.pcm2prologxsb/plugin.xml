@@ -25,12 +25,4 @@
          </property>
       </product>
    </extension>
-	<!--<extension 
-	  point="org.eclipse.ui.handlers">
-     <handler
-           class="edu.kit.kastel.scbs.pcm2prologxsb.commands.CreateprologxsbHandler"
-           commandId="edu.kit.kastel.scbs.pcm2prologxsb.commands.createprologxsb">
-     </handler>
-  </extension>-->
-
 </plugin>

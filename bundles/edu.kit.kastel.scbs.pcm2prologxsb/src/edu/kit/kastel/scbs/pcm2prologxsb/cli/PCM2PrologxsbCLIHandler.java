@@ -31,32 +31,31 @@ public class PCM2PrologxsbCLIHandler {
 		
 		Options options = new Options();
 		
-//		Option systems = Option.builder(SYSTEM_FILES).argName("system").hasArgs().desc("Paths to the PCM System Models").build();
-//		Option repositories = Option.builder(REPOSITORY_FILES).argName("repository").hasArgs().desc("Paths to the PCM Repository Models").build();
-//		Option adversaries = Option.builder(ADVERSARY_FILES).argName("adversary").hasArg().desc("Paths to the Confidentiality for PCM Adversary Models").build();
-//		Option resourceEnvironments = Option.builder(RESOURCE_ENVIRONMENT_FILES).argName("resourceEnvironment").desc("Paths to the PCM Resource Enviornment Models").build();
-//		Option allocations = Option.builder(ALLOCATION_FILES).argName("allocation").desc("Paths to the PCM Allocation Models").build();
-//		Option confidentialities = Option.builder(CONFIDENTIALITY_FILES).argName("confidentiality").desc("Paths to the Confidentiality for PCM Confidentiality Specification Models").build();
-//		Option generateComments = Option.builder(GENERATE_COMMENTS_PARAMETER).argName(GENERATE_COMMENTS_PARAMETER).hasArg(false).desc("Whether Comments shall be generated").build();
-//		Option groupFacts = Option.builder(GROUP_FACTS_PARAMETER).argName(GROUP_FACTS_PARAMETER).hasArg(false).desc("Whether facts shall be grouped according to files").build();
-//		Option simplifyIDs = Option.builder(SIMPLIFY_IDS_PARAMETER).argName(SIMPLIFY_IDS_PARAMETER).hasArg(false).desc("Wheter ids shall be simplified or used as complex ID names").build();
-//		Option concatOutput = Option.builder(CONCAT_OUTPUT_TO_SINGLE_FILE_PARAMETER).argName(CONCAT_OUTPUT_TO_SINGLE_FILE_PARAMETER).hasArg(false).desc("Wheter output should be provided as several prolog files or one large one").build();
-//		Option generateDescriptions = Option.builder(GENERATE_DESCRIPTIONS_PARAMETER).argName(GENERATE_DESCRIPTIONS_PARAMETER).hasArg(false).desc("Wheter descriptions shall be provided or not").build();
+		Option systems = Option.builder(SYSTEM_FILES).argName("system").hasArgs().desc("Paths to the PCM System Models").build();
+		Option repositories = Option.builder(REPOSITORY_FILES).argName("repository").hasArgs().desc("Paths to the PCM Repository Models").build();
+		Option adversaries = Option.builder(ADVERSARY_FILES).argName("adversary").hasArg().desc("Paths to the Confidentiality for PCM Adversary Models").build();
+		Option resourceEnvironments = Option.builder(RESOURCE_ENVIRONMENT_FILES).argName("resourceEnvironment").desc("Paths to the PCM Resource Enviornment Models").build();
+		Option allocations = Option.builder(ALLOCATION_FILES).argName("allocation").desc("Paths to the PCM Allocation Models").build();
+		Option confidentialities = Option.builder(CONFIDENTIALITY_FILES).argName("confidentiality").desc("Paths to the Confidentiality for PCM Confidentiality Specification Models").build();
+		Option generateComments = Option.builder(GENERATE_COMMENTS_PARAMETER).argName(GENERATE_COMMENTS_PARAMETER).hasArg(false).desc("Whether Comments shall be generated").build();
+		Option groupFacts = Option.builder(GROUP_FACTS_PARAMETER).argName(GROUP_FACTS_PARAMETER).hasArg(false).desc("Whether facts shall be grouped according to files").build();
+		Option simplifyIDs = Option.builder(SIMPLIFY_IDS_PARAMETER).argName(SIMPLIFY_IDS_PARAMETER).hasArg(false).desc("Wheter ids shall be simplified or used as complex ID names").build();
+		Option concatOutput = Option.builder(CONCAT_OUTPUT_TO_SINGLE_FILE_PARAMETER).argName(CONCAT_OUTPUT_TO_SINGLE_FILE_PARAMETER).hasArg(false).desc("Wheter output should be provided as several prolog files or one large one").build();
+		Option generateDescriptions = Option.builder(GENERATE_DESCRIPTIONS_PARAMETER).argName(GENERATE_DESCRIPTIONS_PARAMETER).hasArg(false).desc("Wheter descriptions shall be provided or not").build();
 		
-		Option systems = new Option(SYSTEM_FILES, true, "Paths to the PCM System Models");
-		
+
 		options.addOption(systems);
-//		options.addOption(repositories);
-//		options.addOption(adversaries);
-//		options.addOption(resourceEnvironments);
-//		options.addOption(allocations);
-//		options.addOption(confidentialities);
-//		options.addOption(generateDescriptions);
-//		options.addOption(generateComments);
-//		options.addOption(groupFacts);
-//		options.addOption(simplifyIDs);
-//		options.addOption(concatOutput);
-//	
+		options.addOption(repositories);
+		options.addOption(adversaries);
+		options.addOption(resourceEnvironments);
+		options.addOption(allocations);
+		options.addOption(confidentialities);
+		options.addOption(generateDescriptions);
+		options.addOption(generateComments);
+		options.addOption(groupFacts);
+		options.addOption(simplifyIDs);
+		options.addOption(concatOutput);
+
 
 		return options;
 	}

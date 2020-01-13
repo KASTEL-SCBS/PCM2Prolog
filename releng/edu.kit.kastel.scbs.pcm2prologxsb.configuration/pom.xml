@@ -8,7 +8,7 @@
  <properties>
   <tycho.version>1.5.1</tycho.version>
   <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-  <eclipse-repo.url>http://download.eclipse.org/releases/2019-09</eclipse-repo.url>
+  <eclipse-repo.url>http://download.eclipse.org/releases/2018-09</eclipse-repo.url>
  </properties>
 
  <repositories>
@@ -18,7 +18,6 @@
    <layout>p2</layout>
   </repository>
 
-
  <repository>
 	    <id>Palladiosimulator</id>
 	    <layout>p2</layout>
@@ -26,9 +25,9 @@
     </repository>
 
 <repository>
-    <id>Confidentiality4CBSE</id>
+    <id>KASTEL-SCBS</id>
     <layout>p2</layout>
-    <url>http://kastel-scbs.github.io/updatesite/nightly/confidentiality</url>
+    <url>http://kastel-scbs.github.io/updatesite/nightly/</url>
 </repository>
 
 <repository>
