@@ -8,7 +8,9 @@
  <properties>
   <tycho.version>1.5.1</tycho.version>
   <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  <maven.compiler.release>8</maven.compiler.release>
   <eclipse-repo.url>http://download.eclipse.org/releases/2018-09</eclipse-repo.url>
+  <xtext.version>2.16.0</xtext.version>
  </properties>
 
  <repositories>
@@ -17,6 +19,7 @@
    <url>${eclipse-repo.url}</url>
    <layout>p2</layout>
   </repository>
+
 
  <repository>
 	    <id>Palladiosimulator</id>
@@ -70,6 +73,21 @@
     <artifactId>target-platform-configuration</artifactId>
     <version>${tycho.version}</version>
     <configuration>
+          <dependency-resolution>
+                <optionalDependencies>ignore</optionalDependencies>
+          </dependency-resolution>
+         <extraRequirements>
+                <requirement>
+                  <type>eclipse-plugin</type>
+                  <id>org.eclipse.rap.ui</id>
+                  <versionRange>0.0.0</versionRange>
+                </requirement>
+                <requirement>
+                  <type>eclipse-plugin</type>
+                  <id>org.eclipse.rap.ui.views</id>
+                  <versionRange>0.0.0</versionRange>
+                </requirement>
+              </extraRequirements>
      <environments>
       <environment>
        <os>linux</os>

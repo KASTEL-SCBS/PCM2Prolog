@@ -7,8 +7,8 @@ import org.eclipse.equinox.app.IApplicationContext;
 
 import edu.kit.ipd.sdq.mdsd.ecore2log.config.DefaultUserConfiguration;
 import edu.kit.ipd.sdq.mdsd.ecore2txt.util.Ecore2TxtUtil;
-import edu.kit.kastel.scbs.pcm2prologxsb.cli.PCM2PrologXSBCommandLineContent;
-import edu.kit.kastel.scbs.pcm2prologxsb.cli.PCM2PrologxsbCLI;
+import edu.kit.kastel.scbs.pcm2prologxsb.commandLineInterpretation.PCM2PrologXSBCommandLineContent;
+import edu.kit.kastel.scbs.pcm2prologxsb.commandLineInterpretation.PCM2PrologxsbCLI;
 import edu.kit.kastel.scbs.pcm2prologxsb.config.PrologXSBLogConfiguration;
 
 public class PCM2PrologXSB implements IApplication {

@@ -1,4 +1,4 @@
-package edu.kit.kastel.scbs.pcm2prologxsb.cli;
+package edu.kit.kastel.scbs.pcm2prologxsb.commandLineInterpretation;
 
 import java.io.File;
 import java.io.IOException;

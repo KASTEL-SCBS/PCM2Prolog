@@ -1,14 +1,11 @@
-package edu.kit.kastel.scbs.pcm2prologxsb.cli;
+package edu.kit.kastel.scbs.pcm2prologxsb.commandLineInterpretation;
 
+import org.apache.commons.cli.BasicParser;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-
-
-
-
+import org.apache.commons.cli.Parser;
 
 public class PCM2PrologxsbCLI {
 	
@@ -20,7 +17,7 @@ public class PCM2PrologxsbCLI {
 	
 	
 	private CommandLine parseInput(Options options, String[] args) throws ParseException {
-		CommandLineParser parser = new DefaultParser();
+		CommandLineParser parser = new BasicParser();
 		return parser.parse(options, args);
 	}
 	
