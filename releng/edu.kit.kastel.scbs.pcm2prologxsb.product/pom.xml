@@ -32,6 +32,10 @@
     <executions>
      <execution>
       <id>materialize-products</id>
+      <configuration>
+			<additionalIUs>						  <additionalIU>org.eclipse.egit.feature.group</additionalIU>
+			</additionalIUs>
+		</configuration>
       <goals>
        <goal>materialize-products</goal>
       </goals>

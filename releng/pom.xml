@@ -12,6 +12,6 @@
     </parent>
 
     <modules>
-        <!--<module>edu.kit.kastel.scbs.pcm2prologxsb.product</module>--> 
+        <module>edu.kit.kastel.scbs.pcm2prologxsb.product</module> 
     </modules>
 </project>

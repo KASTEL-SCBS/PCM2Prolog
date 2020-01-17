@@ -25,4 +25,12 @@
          </property>
       </product>
    </extension>
+   <extension
+         id="headlessPCM2PrologXSB"
+         point="org.eclipse.core.runtime.products">
+      <product
+            application="edu.kit.kastel.scbs.pcm2prologxsb.headlessPCM2PrologXSBApplication"
+            name="Headless PCM2PrologXSB">
+      </product>
+   </extension>
 </plugin>
