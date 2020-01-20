@@ -31,22 +31,8 @@ public class PCM2PrologXSB implements IApplication {
 		
 		PCM2PrologXSBCommandLineContent cliContent = new PCM2PrologxsbCLI().interrogateCommandLine(appArgs);
 			
-			
-			
-			
 			if(cliContent.isValid()) {
 				DefaultUserConfiguration userConfiguration = cliContent.getDefaultUserConfiguration();
-				
-				System.out.println("Generate-Comments: " + userConfiguration.generateComments());
-				System.out.println("To Single File: " + userConfiguration.concatOutputToSingleFile());
-				System.out.println("Generate Descriptions: " + userConfiguration.generateDescriptions());
-				System.out.println("Group Facts: " + userConfiguration.groupFacts());
-				System.out.println("SimplifyIDs:" + userConfiguration.simplifyIDs());
-				
-				System.out.println("Files:");
-				for(IFile file : cliContent.getFilesOfResourcePaths()) {
-					System.out.println(file.getLocationURI());
-				}
 				Ecore2TxtUtil.generateFromSelectedFilesInFolder(cliContent.getFilesOfResourcePaths(),new PCM2PrologXSBGeneratorModule(),new PCM2PrologXSBGenerator(userConfiguration), userConfiguration.concatOutputToSingleFile(), userConfiguration.groupFacts());
 			} else {
 				System.out.println("Error in CLI");
