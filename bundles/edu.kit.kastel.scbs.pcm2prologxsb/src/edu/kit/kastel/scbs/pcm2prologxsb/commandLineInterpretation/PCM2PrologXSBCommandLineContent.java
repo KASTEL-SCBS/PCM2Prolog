@@ -25,7 +25,8 @@ public class PCM2PrologXSBCommandLineContent {
 	private DefaultUserConfiguration userconfiguration;
 	private List<IFile> resources;
 	private List<String> resourcePaths;
-	
+	private boolean tmpProjectIsCreated;
+
 	public PCM2PrologXSBCommandLineContent(DefaultUserConfiguration configuration, List<String> resourcePaths) {
 		this.userconfiguration = configuration;
 		this.resourcePaths = resourcePaths;
@@ -54,31 +55,60 @@ public class PCM2PrologXSBCommandLineContent {
 		if(resourcesInitializationRequired()) {
 			resources.clear();
 			for(String path : resourcePaths) {
-				File file = new File(path);
+				File file = null;
+				try {
+					file = new File(path).getCanonicalFile();
+					System.out.println("Canonical Path" + file.getCanonicalPath());
+				} catch (IOException e1) {
+					System.out.println("Error in Cononical Path");
+				}
 				IFile workspaceFile = null;
-				URI location = file.toURI();
+				
+				URI location = null;
+				if(file != null) {
+					location = file.toURI();
+				}
 				if(!path.contains(workspaceLocation)) {
 					IProgressMonitor progressMonitor = new NullProgressMonitor();
 					IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 					IProject project = root.getProject("PCM2PrologGenerate");
+					
+					if(!tmpProjectIsCreated) {
 					try {
 						project.create(progressMonitor);
+						tmpProjectIsCreated = true;
 					} catch (CoreException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
+						}
 					}
+					
+					try {
+						project.open(progressMonitor);
+					} catch (CoreException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+					
+					String[] splitPath = path.split("/");
+					
+					String fileName = splitPath[splitPath.length - 1];
 					
 					String generationFolderLocation = workspaceLocation + "/" + "PCM2PrologGenerate" + "/" + "generationFolder";
 					File tmpFolder = new File(generationFolderLocation);
-					tmpFolder.mkdirs();
-					
-					File destinationFile = new File(generationFolderLocation + "/");
+					if(!tmpFolder.exists()) {
+						tmpFolder.mkdirs();
+					}
+					File destinationFile = new File(generationFolderLocation + "/" + fileName);
 					try {
 						Files.copy(file, destinationFile);
 					} catch (IOException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
+					
+					location = destinationFile.toURI();
+					
 				} else {
 					
 				}

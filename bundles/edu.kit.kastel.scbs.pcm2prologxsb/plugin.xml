@@ -31,6 +31,10 @@
       <product
             application="edu.kit.kastel.scbs.pcm2prologxsb.headlessPCM2PrologXSBApplication"
             name="Headless PCM2PrologXSB">
+         <property
+               name="appName"
+               value="Headless PCM2PrologXSB">
+         </property>
       </product>
    </extension>
 </plugin>

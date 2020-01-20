@@ -47,11 +47,11 @@ public class PCM2PrologxsbCLIHandler {
 //		
 		
 		Option systems = OptionBuilder.withArgName(SYSTEM_FILES).hasArgs().withDescription("Paths to the PCM System Models").create(SYSTEM_FILES);
-		Option repositories = OptionBuilder.withArgName(REPOSITORY_FILES).hasArgs().withDescription("Paths to the PCM Repository Models").create(REPOSITORY_FILES);
+		Option repositories = OptionBuilder.withArgName(REPOSITORY_FILES).hasArgs().withDescription("Paths to the PCM Repository Models").isRequired().create(REPOSITORY_FILES);
 		Option adversaries = OptionBuilder.withArgName(ADVERSARY_FILES).hasArg().withDescription("Paths to the Confidentiality for PCM Adversary Models").create(ADVERSARY_FILES);
-		Option resourceEnvironments = OptionBuilder.withArgName(RESOURCE_ENVIRONMENT_FILES).withDescription("Paths to the PCM Resource Enviornment Models").create(RESOURCE_ENVIRONMENT_FILES);
-		Option allocations = OptionBuilder.withArgName(ALLOCATION_FILES).withDescription("Paths to the PCM Allocation Models").create(ALLOCATION_FILES);
-		Option confidentialities = OptionBuilder.withArgName(CONFIDENTIALITY_FILES).withDescription("Paths to the Confidentiality for PCM Confidentiality Specification Models").create(CONFIDENTIALITY_FILES);
+		Option resourceEnvironments = OptionBuilder.withArgName(RESOURCE_ENVIRONMENT_FILES).hasArgs().withDescription("Paths to the PCM Resource Enviornment Models").create(RESOURCE_ENVIRONMENT_FILES);
+		Option allocations = OptionBuilder.withArgName(ALLOCATION_FILES).withDescription("Paths to the PCM Allocation Models").hasArgs().create(ALLOCATION_FILES);
+		Option confidentialities = OptionBuilder.withArgName(CONFIDENTIALITY_FILES).withDescription("Paths to the Confidentiality for PCM Confidentiality Specification Models").hasArgs().create(CONFIDENTIALITY_FILES);
 		Option generateComments = OptionBuilder.withArgName(GENERATE_COMMENTS_PARAMETER).hasArg(false).withDescription("Whether Comments shall be generated").create(GENERATE_COMMENTS_PARAMETER);
 		Option groupFacts = OptionBuilder.withArgName(GROUP_FACTS_PARAMETER).hasArg(false).withDescription("Whether facts shall be grouped according to files").create(GROUP_FACTS_PARAMETER);
 		Option simplifyIDs = OptionBuilder.withArgName(SIMPLIFY_IDS_PARAMETER).hasArg(false).withDescription("Wheter ids shall be simplified or used as complex ID names").create(SIMPLIFY_IDS_PARAMETER);
