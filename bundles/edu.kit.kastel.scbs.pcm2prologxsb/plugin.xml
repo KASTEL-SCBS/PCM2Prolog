@@ -130,6 +130,32 @@
                      name="edu.kit.kastel.scbs.pcm2prologxsb.generateDescriptions"
                      value="false">
                </parameter>
+            </command>
+            <command
+                  commandId="edu.kit.kastel.scbs.pcm2prologxsb.commands.createprologxsb"
+                  label="Create Prolog XSB Code (comments,ungrouped,fullIDs,multiFiles,desc)"
+                  style="push"
+                  tooltip="Create Prolog XSB Code for Architectural Confidentiality Analysis">
+               <parameter
+                     name="edu.kit.kastel.scbs.pcm2prologxsb.generateCommentsParameter"
+                     value="true">
+               </parameter>
+               <parameter
+                     name="edu.kit.kastel.scbs.pcm2prologxsb.groupFactsParameter"
+                     value="false">
+               </parameter>
+               <parameter
+                     name="edu.kit.kastel.scbs.pcm2prologxsb.concatOutputToSingleFileParameter"
+                     value="false">
+               </parameter>
+               <parameter
+                     name="edu.kit.kastel.scbs.pcm2prologxsb.generateDescriptions"
+                     value="true">
+               </parameter>
+               <parameter
+                     name="edu.kit.kastel.scbs.pcm2prologxsb.simplifyIDsParameter"
+                     value="false">
+               </parameter>
             </command>            
             <visibleWhen
                   checkEnabled="false">
