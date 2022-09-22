@@ -30,9 +30,12 @@ import org.palladiosimulator.pcm.core.composition.AssemblyContext
 import org.palladiosimulator.pcm.core.composition.Connector
 import org.palladiosimulator.pcm.repository.OperationInterface
 import org.palladiosimulator.pcm.repository.Parameter
+import org.eclipse.internal.xtend.util.Triplet
 
 class PCM2PrologXSBGenerator extends AbstractProfiledEcore2LogGenerator<PCMNameConfiguration> {
 	private val SpecificationParameterRemover specificationParameterRemover = new SpecificationParameterRemover()
+	val OUTPUTFILE_NAME = "mappings.txt"
+	
 	
 	new(UserConfiguration userConfiguration) {
 		super(new PCM2PrologXSBFilter, new PCMNameConfiguration, new PrologXSBLogConfiguration, userConfiguration)
@@ -63,8 +66,36 @@ class PCM2PrologXSBGenerator extends AbstractProfiledEcore2LogGenerator<PCMNameC
 				return "\"" + valString.replace("\"","\\\"") + "\""
 			}
 		}
-		        
 	}
+	
+	override generateContentsFromResource(Resource inputResource){
+		
+		var contentsForFolderAndFileNames = super.generateContentsFromResource(inputResource)
+		
+		//really bad workaround to add something to the iterable, but works. 
+		var addableContents = new ArrayList<Triplet<String, String, String>>()
+		addableContents.addAll(contentsForFolderAndFileNames);
+		val folderName = getFolderNameForResource(inputResource)
+				
+		val buffer = new StringBuffer;
+		
+		
+		if(!this.nameConfig.IDMap.empty){
+			
+			for(kvp : this.nameConfig.IDMap.entrySet){
+				buffer.append(String.format("%s:%s \n", kvp.key, kvp.value))
+			}
+			
+		}
+		
+		val mapContent = new Triplet<String,String,String>(buffer.toString, folderName, this.OUTPUTFILE_NAME)
+		addableContents.add(mapContent)
+		
+		
+		
+		return addableContents
+	}
+	
 	
 //	override preprocessInputResourceInPlace(Resource inputResource) {
 //		inputResource.allContents.forEach[preprocessContent(it)]
@@ -79,6 +110,7 @@ class PCM2PrologXSBGenerator extends AbstractProfiledEcore2LogGenerator<PCMNameC
 //	}
 	
 	private def List<IFile> sortInputFiles(List<IFile> inputFiles) {
+	
 		val preprocessedInputFiles = new ArrayList(inputFiles.size)
 		preprocessedInputFiles.addAll(inputFiles)	
 		Collections.sort(preprocessedInputFiles, new Comparator<IFile>() {
@@ -87,7 +119,7 @@ class PCM2PrologXSBGenerator extends AbstractProfiledEcore2LogGenerator<PCMNameC
 				val fileExtIndex2 = fileExt2Index(o2.fileExtension)
 				return fileExtIndex1.compareTo(fileExtIndex2)
 			}
-			
+	
 			def private int fileExt2Index(String fileExt) {
 				switch fileExt {
 					case 'confidentiality' : 0
